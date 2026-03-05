@@ -22,18 +22,6 @@
       }
     },
     {
-      "src": "/",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/index.html",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/apps-variation-3.html",
-      "dest": "/apps-variation-3.html"
-    },
-    {
       "src": "/(.*)",
       "dest": "/$1"
     }
