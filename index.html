@@ -157,13 +157,21 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        gap: 8px;
         cursor: pointer;
         font-weight: 900;
         font-size: 16px;
         text-transform: uppercase;
-        letter-spacing: 1px;
+        letter-spacing: 2px;
         transition: all 0.2s cubic-bezier(0, 0, 0.2, 1);
         box-shadow: 4px 4px 0 var(--border);
+      }
+      .vibrant-cta svg {
+        width: 20px;
+        height: 20px;
+        stroke: #000;
+        fill: none;
+        stroke-width: 2.5;
       }
 
       .vibrant-cta:active {
@@ -353,26 +361,29 @@
 
       .progress-ring {
         transform: rotate(-90deg);
-        filter: drop-shadow(0 0 10px rgba(0, 229, 255, 0.2));
+        filter: drop-shadow(0 0 20px rgba(0, 229, 255, 0.35)) drop-shadow(0 0 60px rgba(0, 229, 255, 0.15));
       }
       .progress-ring__track {
         fill: none;
         stroke: var(--surface-light);
-        stroke-width: 4;
+        stroke-width: 8;
         stroke-linecap: square;
       }
       .progress-ring__progress {
         fill: none;
         stroke: var(--primary);
-        stroke-width: 6;
+        stroke-width: 12;
         stroke-linecap: square;
         transition: stroke-dashoffset 0.5s cubic-bezier(0, 0, 0.2, 1);
+        filter: drop-shadow(0 0 6px rgba(0, 229, 255, 0.6));
       }
       .progress-ring__thumb {
         fill: var(--primary);
         stroke: var(--bg);
-        stroke-width: 2;
+        stroke-width: 3;
+        r: 10;
         transition: transform 0.5s cubic-bezier(0, 0, 0.2, 1);
+        filter: drop-shadow(0 0 8px rgba(0, 229, 255, 0.8));
       }
 
       .progress-center {
@@ -396,9 +407,10 @@
       .progress-value {
         font-size: 56px;
         font-weight: 900;
-        color: var(--text);
+        color: var(--primary);
         line-height: 1;
         letter-spacing: -2px;
+        text-shadow: 0 0 20px rgba(0, 229, 255, 0.4), 0 0 40px rgba(0, 229, 255, 0.1);
       }
       .progress-unit {
         font-size: 12px;
@@ -1218,7 +1230,8 @@
           Умный трекер водного баланса<br />с персональными рекомендациями
         </p>
         <button class="vibrant-cta" id="startButton" aria-label="Начать">
-          <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+          НАЧАТЬ
+          <svg viewBox="0 0 24 24" width="20" height="20"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
         </button>
       </div>
 
