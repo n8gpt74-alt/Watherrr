@@ -32,6 +32,11 @@ PWA-приложение для отслеживания водного бала
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/n8gpt74-alt/Watherrr)
 
+### 🌐 Ссылки
+
+- **Приложение:** `https://watherrr.vercel.app`
+- **GitHub:** `https://github.com/n8gpt74-alt/Watherrr`
+
 ### Ручной деплой
 
 1. Установите Vercel CLI:
