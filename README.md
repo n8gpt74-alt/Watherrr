@@ -26,6 +26,31 @@ PWA-приложение для отслеживания водного бала
 - ✅ **Советы дня** — 15 персонализированных рекомендаций
 - ✅ **Экспорт данных** — выгрузка в JSON
 
+## 🚀 Деплой на Vercel
+
+### Быстрый деплой
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/n8gpt74-alt/Watherrr)
+
+### Ручной деплой
+
+1. Установите Vercel CLI:
+```bash
+npm i -g vercel
+```
+
+2. Задеплойте проект:
+```bash
+vercel
+```
+
+3. Следуйте инструкциям в терминале
+
+### Автоматический деплой
+
+1. Подключите репозиторий GitHub к Vercel
+2. Vercel автоматически задеплоит при каждом пуше
+
 ## 📱 Установка как PWA
 
 ### iOS Safari
