@@ -99,16 +99,25 @@
 
       /* ===== ONBOARDING ===== */
       .onboarding-screen {
-        display: flex;
+        position: fixed;
+        inset: 0;
+        z-index: 500;
+        display: none;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        min-height: 100vh;
         text-align: center;
         padding: 40px 20px;
+        background: var(--bg);
+        transition: opacity 0.5s ease, transform 0.5s ease;
       }
       .onboarding-screen.active {
         display: flex;
+      }
+      .onboarding-screen.hiding {
+        opacity: 0;
+        transform: scale(0.96) translateY(-20px);
+        pointer-events: none;
       }
 
       .vibrant-drop {
@@ -1394,25 +1403,30 @@
               <span class="drink-type-name">Вода</span>
               <span class="drink-type-coef">100%</span>
             </button>
-            <button class="drink-type-btn" data-type="tea" data-coef="0.9">
+            <button class="drink-type-btn" data-type="tea" data-coef="0.98">
               <span class="drink-type-icon">🍵</span>
               <span class="drink-type-name">Чай</span>
-              <span class="drink-type-coef">90%</span>
+              <span class="drink-type-coef">98%</span>
             </button>
-            <button class="drink-type-btn" data-type="coffee" data-coef="0.8">
+            <button class="drink-type-btn" data-type="coffee" data-coef="0.95">
               <span class="drink-type-icon">☕</span>
               <span class="drink-type-name">Кофе</span>
-              <span class="drink-type-coef">80%</span>
+              <span class="drink-type-coef">95%</span>
             </button>
-            <button class="drink-type-btn" data-type="juice" data-coef="0.85">
+            <button class="drink-type-btn" data-type="milk" data-coef="1.05">
+              <span class="drink-type-icon">🥛</span>
+              <span class="drink-type-name">Молоко</span>
+              <span class="drink-type-coef">105%</span>
+            </button>
+            <button class="drink-type-btn" data-type="juice" data-coef="1.00">
               <span class="drink-type-icon">🧃</span>
               <span class="drink-type-name">Сок</span>
-              <span class="drink-type-coef">85%</span>
+              <span class="drink-type-coef">100%</span>
             </button>
-            <button class="drink-type-btn" data-type="soda" data-coef="0.7">
+            <button class="drink-type-btn" data-type="soda" data-coef="0.95">
               <span class="drink-type-icon">🥤</span>
               <span class="drink-type-name">Газировка</span>
-              <span class="drink-type-coef">70%</span>
+              <span class="drink-type-coef">95%</span>
             </button>
           </div>
         </div>
@@ -2606,6 +2620,7 @@
           water: "Вода",
           tea: "Чай",
           coffee: "Кофе",
+          milk: "Молоко",
           juice: "Сок",
           soda: "Газировка",
         };
@@ -2847,6 +2862,7 @@
           water: "💧",
           tea: "🍵",
           coffee: "☕",
+          milk: "🥛",
           juice: "🧃",
           soda: "🥤",
           custom: "💦",
@@ -3222,20 +3238,18 @@
       // ========================================
       startButton.addEventListener("click", () => {
         const onboarding = screens.onboarding;
-        onboarding.style.transition = "opacity 0.5s ease, transform 0.5s ease";
-        onboarding.style.opacity = "0";
-        onboarding.style.transform = "translateY(-60px)";
-        onboarding.style.pointerEvents = "none";
+        onboarding.classList.add('hiding');
 
+        // Switch screen immediately (it's behind the fixed overlay)
+        state.onboardingComplete = true;
+        saveData();
+        switchScreen('tracking');
+        window.scrollTo({ top: 0 });
+
+        // Remove onboarding from view after animation
         setTimeout(() => {
-          state.onboardingComplete = true;
-          saveData();
-          switchScreen("tracking");
-          onboarding.style.transition = "";
-          onboarding.style.opacity = "";
-          onboarding.style.transform = "";
-          onboarding.style.pointerEvents = "";
-        }, 500);
+          onboarding.classList.remove('active', 'hiding');
+        }, 520);
       });
 
       // ===== EDITABLE REMINDER TIMES =====
