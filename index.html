@@ -361,7 +361,8 @@
 
       .progress-ring {
         transform: rotate(-90deg);
-        filter: drop-shadow(0 0 20px rgba(0, 229, 255, 0.35)) drop-shadow(0 0 60px rgba(0, 229, 255, 0.15));
+        filter: drop-shadow(0 0 20px rgba(0, 229, 255, 0.35))
+          drop-shadow(0 0 60px rgba(0, 229, 255, 0.15));
       }
       .progress-ring__track {
         fill: none;
@@ -410,7 +411,9 @@
         color: var(--primary);
         line-height: 1;
         letter-spacing: -2px;
-        text-shadow: 0 0 20px rgba(0, 229, 255, 0.4), 0 0 40px rgba(0, 229, 255, 0.1);
+        text-shadow:
+          0 0 20px rgba(0, 229, 255, 0.4),
+          0 0 40px rgba(0, 229, 255, 0.1);
       }
       .progress-unit {
         font-size: 12px;
@@ -1142,7 +1145,8 @@
         letter-spacing: 0.5px;
       }
       .calendar-nav-btn {
-        width: 36px; height: 36px;
+        width: 36px;
+        height: 36px;
         background: var(--surface);
         border: 1px solid var(--border);
         color: var(--text);
@@ -1152,9 +1156,20 @@
         justify-content: center;
         transition: all 0.15s;
       }
-      .calendar-nav-btn:hover { border-color: var(--primary); color: var(--primary); }
-      .calendar-nav-btn:active { transform: translateY(1px); }
-      .calendar-nav-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; }
+      .calendar-nav-btn:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+      }
+      .calendar-nav-btn:active {
+        transform: translateY(1px);
+      }
+      .calendar-nav-btn svg {
+        width: 16px;
+        height: 16px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 2;
+      }
 
       /* ===== WEEKLY WIDGET ===== */
       .weekly-widget {
@@ -1178,8 +1193,13 @@
         min-height: 2px;
         opacity: 0.4;
       }
-      .weekly-bar-fill.today-bar { opacity: 1; }
-      .weekly-bar-fill.goal-reached { background: var(--success); opacity: 0.8; }
+      .weekly-bar-fill.today-bar {
+        opacity: 1;
+      }
+      .weekly-bar-fill.goal-reached {
+        background: var(--success);
+        opacity: 0.8;
+      }
       .weekly-bar-label {
         font-size: 9px;
         color: var(--text-muted);
@@ -1189,7 +1209,8 @@
 
       /* ===== HISTORY DELETE ===== */
       .history-delete-btn {
-        width: 32px; height: 32px;
+        width: 32px;
+        height: 32px;
         background: transparent;
         border: 1px solid transparent;
         color: var(--text-muted);
@@ -1201,12 +1222,24 @@
         transition: all 0.2s;
         flex-shrink: 0;
       }
-      .history-delete-btn:hover { color: var(--error); border-color: var(--error); opacity: 1; }
-      .history-delete-btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
+      .history-delete-btn:hover {
+        color: var(--error);
+        border-color: var(--error);
+        opacity: 1;
+      }
+      .history-delete-btn svg {
+        width: 14px;
+        height: 14px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 2;
+      }
 
       /* ===== REDUCED MOTION ===== */
       @media (prefers-reduced-motion: reduce) {
-        *, *::before, *::after {
+        *,
+        *::before,
+        *::after {
           animation-duration: 0.01ms !important;
           animation-iteration-count: 1 !important;
           transition-duration: 0.01ms !important;
@@ -1231,7 +1264,9 @@
         </p>
         <button class="vibrant-cta" id="startButton" aria-label="Начать">
           НАЧАТЬ
-          <svg viewBox="0 0 24 24" width="20" height="20"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+          <svg viewBox="0 0 24 24" width="20" height="20">
+            <path d="M5 12h14M12 5l7 7-7 7" />
+          </svg>
         </button>
       </div>
 
@@ -1316,7 +1351,19 @@
         <!-- Weekly Stats -->
         <div class="card">
           <div class="card-title">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M3 3v18h18" />
+              <path d="M18 17V9" />
+              <path d="M13 17V5" />
+              <path d="M8 17v-3" />
+            </svg>
             Неделя
           </div>
           <div class="weekly-widget" id="weeklyWidget"></div>
@@ -1652,6 +1699,18 @@
                 <div>
                   <div class="reminder-time-label">Утро</div>
                   <div class="reminder-time-value" id="morningTime">08:00</div>
+                  <input
+                    type="time"
+                    class="input reminder-time-input"
+                    id="morningTimeInput"
+                    value="08:00"
+                    style="
+                      display: none;
+                      height: 36px;
+                      width: 120px;
+                      margin-top: 4px;
+                    "
+                  />
                 </div>
               </div>
               <div class="toggle active" data-period="morning">
@@ -1669,6 +1728,18 @@
                 <div>
                   <div class="reminder-time-label">День</div>
                   <div class="reminder-time-value" id="dayTime">13:00</div>
+                  <input
+                    type="time"
+                    class="input reminder-time-input"
+                    id="dayTimeInput"
+                    value="13:00"
+                    style="
+                      display: none;
+                      height: 36px;
+                      width: 120px;
+                      margin-top: 4px;
+                    "
+                  />
                 </div>
               </div>
               <div class="toggle active" data-period="day">
@@ -1686,6 +1757,18 @@
                 <div>
                   <div class="reminder-time-label">Вечер</div>
                   <div class="reminder-time-value" id="eveningTime">18:00</div>
+                  <input
+                    type="time"
+                    class="input reminder-time-input"
+                    id="eveningTimeInput"
+                    value="18:00"
+                    style="
+                      display: none;
+                      height: 36px;
+                      width: 120px;
+                      margin-top: 4px;
+                    "
+                  />
                 </div>
               </div>
               <div class="toggle active" data-period="evening">
@@ -1974,8 +2057,8 @@
       };
 
       let state = JSON.parse(JSON.stringify(defaultState));
-    let calendarMonth = new Date().getMonth();
-    let calendarYear = new Date().getFullYear();
+      let calendarMonth = new Date().getMonth();
+      let calendarYear = new Date().getFullYear();
 
       // ========================================
       // ACHIEVEMENTS DATA
@@ -2462,7 +2545,7 @@
         const effectiveAmount = Math.round(amount * drinkCoef);
 
         state.currentAmount += effectiveAmount;
-      if (navigator.vibrate) navigator.vibrate(50);
+        if (navigator.vibrate) navigator.vibrate(50);
         state.entries++;
         state.history.unshift({
           id: Date.now(),
@@ -2534,22 +2617,22 @@
       // ========================================
       function updateUI() {
         // Animate counter
-      const target = state.currentAmount;
-      const current = parseInt(currentAmountEl.textContent) || 0;
-      if (current !== target) {
-        const diff = target - current;
-        const steps = Math.min(Math.abs(diff), 20);
-        const stepSize = diff / steps;
-        let step = 0;
-        const counterInterval = setInterval(() => {
-          step++;
-          const val = Math.round(current + stepSize * step);
-          currentAmountEl.textContent = step >= steps ? target : val;
-          if (step >= steps) clearInterval(counterInterval);
-        }, 30);
-      } else {
-        currentAmountEl.textContent = target;
-      }
+        const target = state.currentAmount;
+        const current = parseInt(currentAmountEl.textContent) || 0;
+        if (current !== target) {
+          const diff = target - current;
+          const steps = Math.min(Math.abs(diff), 20);
+          const stepSize = diff / steps;
+          let step = 0;
+          const counterInterval = setInterval(() => {
+            step++;
+            const val = Math.round(current + stepSize * step);
+            currentAmountEl.textContent = step >= steps ? target : val;
+            if (step >= steps) clearInterval(counterInterval);
+          }, 30);
+        } else {
+          currentAmountEl.textContent = target;
+        }
         progressUnitEl.textContent = `/ ${state.goalAmount} мл`;
         goalStatEl.textContent = state.goalAmount;
         entriesStatEl.textContent = state.entries;
@@ -2591,9 +2674,9 @@
         tipText.textContent = tips[dayOfYear % tips.length];
 
         // Weekly widget
-      renderWeeklyWidget();
+        renderWeeklyWidget();
 
-      // Notification banner
+        // Notification banner
         if (
           state.onboardingComplete &&
           !state.notificationPermissionRequested &&
@@ -2607,32 +2690,32 @@
       // CALENDAR
       // ========================================
       function renderWeeklyWidget() {
-      const widget = document.getElementById('weeklyWidget');
-      if (!widget) return;
-      const today = new Date();
-      const todayKey = getTodayKey();
-      const dayNames = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
-      let html = '';
-      
-      for (let i = 6; i >= 0; i--) {
-        const d = new Date(today);
-        d.setDate(d.getDate() - i);
-        const dateKey = d.toISOString().split('T')[0];
-        const dayEntries = state.history.filter(h => h.date === dateKey);
-        const total = dayEntries.reduce((sum, h) => sum + h.amount, 0);
-        const pct = Math.min((total / state.goalAmount) * 100, 100);
-        const isToday = dateKey === todayKey;
-        const goalReached = total >= state.goalAmount;
-        
-        html += `<div class="weekly-bar">
-          <div class="weekly-bar-fill ${isToday ? 'today-bar' : ''} ${goalReached ? 'goal-reached' : ''}" style="height: ${Math.max(pct, 3)}%"></div>
+        const widget = document.getElementById("weeklyWidget");
+        if (!widget) return;
+        const today = new Date();
+        const todayKey = getTodayKey();
+        const dayNames = ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"];
+        let html = "";
+
+        for (let i = 6; i >= 0; i--) {
+          const d = new Date(today);
+          d.setDate(d.getDate() - i);
+          const dateKey = d.toISOString().split("T")[0];
+          const dayEntries = state.history.filter((h) => h.date === dateKey);
+          const total = dayEntries.reduce((sum, h) => sum + h.amount, 0);
+          const pct = Math.min((total / state.goalAmount) * 100, 100);
+          const isToday = dateKey === todayKey;
+          const goalReached = total >= state.goalAmount;
+
+          html += `<div class="weekly-bar">
+          <div class="weekly-bar-fill ${isToday ? "today-bar" : ""} ${goalReached ? "goal-reached" : ""}" style="height: ${Math.max(pct, 3)}%"></div>
           <span class="weekly-bar-label">${dayNames[d.getDay()]}</span>
         </div>`;
+        }
+        widget.innerHTML = html;
       }
-      widget.innerHTML = html;
-    }
 
-    function renderCalendar() {
+      function renderCalendar() {
         const today = new Date();
         const year = today.getFullYear();
         const month = today.getMonth();
@@ -2738,25 +2821,28 @@
           .join("");
       }
 
-      window.deleteEntry = function(id) {
-      const idx = state.history.findIndex(h => h.id === id);
-      if (idx !== -1) {
-        const entry = state.history[idx];
-        if (entry.date === getTodayKey()) {
-          state.currentAmount = Math.max(0, state.currentAmount - entry.amount);
-          state.entries = Math.max(0, state.entries - 1);
+      window.deleteEntry = function (id) {
+        const idx = state.history.findIndex((h) => h.id === id);
+        if (idx !== -1) {
+          const entry = state.history[idx];
+          if (entry.date === getTodayKey()) {
+            state.currentAmount = Math.max(
+              0,
+              state.currentAmount - entry.amount,
+            );
+            state.entries = Math.max(0, state.entries - 1);
+          }
+          state.history.splice(idx, 1);
+          state.streak = calculateStreak();
+          saveData();
+          updateUI();
+          updateProgressRing();
+          renderHistoryList();
+          showToast("Запись удалена");
         }
-        state.history.splice(idx, 1);
-        state.streak = calculateStreak();
-        saveData();
-        updateUI();
-        updateProgressRing();
-        renderHistoryList();
-        showToast('Запись удалена');
-      }
-    };
+      };
 
-    function getDrinkIcon(type) {
+      function getDrinkIcon(type) {
         const icons = {
           water: "💧",
           tea: "🍵",
@@ -3135,20 +3221,70 @@
       // EVENT LISTENERS
       // ========================================
       startButton.addEventListener("click", () => {
-        // Add click animation
-        startButton.classList.add("clicked");
+        const onboarding = screens.onboarding;
+        onboarding.style.transition = "opacity 0.5s ease, transform 0.5s ease";
+        onboarding.style.opacity = "0";
+        onboarding.style.transform = "translateY(-60px)";
+        onboarding.style.pointerEvents = "none";
 
-        // Smooth scroll to app
-        document.body.classList.add("scroll-to-app");
-
-        // Wait for animation then switch screen
         setTimeout(() => {
           state.onboardingComplete = true;
           saveData();
           switchScreen("tracking");
-          document.body.classList.remove("scroll-to-app");
-          startButton.classList.remove("clicked");
-        }, 600);
+          onboarding.style.transition = "";
+          onboarding.style.opacity = "";
+          onboarding.style.transform = "";
+          onboarding.style.pointerEvents = "";
+        }, 500);
+      });
+
+      // ===== EDITABLE REMINDER TIMES =====
+      let reminderEditMode = false;
+      const editRemindersBtn = document.getElementById("editReminders");
+      const morningTimeInput = document.getElementById("morningTimeInput");
+      const dayTimeInput = document.getElementById("dayTimeInput");
+      const eveningTimeInput = document.getElementById("eveningTimeInput");
+      const morningTimeDisplay = document.getElementById("morningTime");
+      const dayTimeDisplay = document.getElementById("dayTime");
+      const eveningTimeDisplay = document.getElementById("eveningTime");
+
+      editRemindersBtn.addEventListener("click", () => {
+        reminderEditMode = !reminderEditMode;
+        if (reminderEditMode) {
+          // Show time inputs, hide text
+          morningTimeInput.value = state.settings.reminderTimes.morning;
+          dayTimeInput.value = state.settings.reminderTimes.day;
+          eveningTimeInput.value = state.settings.reminderTimes.evening;
+          morningTimeInput.style.display = "block";
+          dayTimeInput.style.display = "block";
+          eveningTimeInput.style.display = "block";
+          morningTimeDisplay.style.display = "none";
+          dayTimeDisplay.style.display = "none";
+          eveningTimeDisplay.style.display = "none";
+          editRemindersBtn.textContent = "Сохранить";
+          editRemindersBtn.classList.remove("btn-secondary");
+          editRemindersBtn.classList.add("btn-primary");
+        } else {
+          // Save and hide inputs
+          state.settings.reminderTimes.morning = morningTimeInput.value;
+          state.settings.reminderTimes.day = dayTimeInput.value;
+          state.settings.reminderTimes.evening = eveningTimeInput.value;
+          morningTimeDisplay.textContent = morningTimeInput.value;
+          dayTimeDisplay.textContent = dayTimeInput.value;
+          eveningTimeDisplay.textContent = eveningTimeInput.value;
+          morningTimeInput.style.display = "none";
+          dayTimeInput.style.display = "none";
+          eveningTimeInput.style.display = "none";
+          morningTimeDisplay.style.display = "block";
+          dayTimeDisplay.style.display = "block";
+          eveningTimeDisplay.style.display = "block";
+          editRemindersBtn.textContent = "Настроить время";
+          editRemindersBtn.classList.remove("btn-primary");
+          editRemindersBtn.classList.add("btn-secondary");
+          saveData();
+          scheduleReminders();
+          showToast("Время напоминаний обновлено");
+        }
       });
 
       settingsBtn.addEventListener("click", () => switchScreen("settings"));
@@ -3382,6 +3518,13 @@
         if (state.profile.age) calcAge.value = state.profile.age;
         calcGender.value = state.profile.gender;
         calcActivity.value = state.profile.activity;
+
+        // Restore reminder times
+        if (state.settings.reminderTimes) {
+          morningTimeDisplay.textContent = state.settings.reminderTimes.morning;
+          dayTimeDisplay.textContent = state.settings.reminderTimes.day;
+          eveningTimeDisplay.textContent = state.settings.reminderTimes.evening;
+        }
 
         // Register Service Worker
         registerServiceWorker();
