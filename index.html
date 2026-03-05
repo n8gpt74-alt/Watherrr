@@ -1476,7 +1476,17 @@
       <!-- About -->
       <div class="section-title">О приложении</div>
       <div class="card">
-        <div class="preset-item">
+        <div class="preset-item" id="testNotification">
+          <div class="preset-item-info">
+            <span class="preset-item-icon">🔔</span>
+            <div>
+              <div class="preset-item-name">Тест уведомлений</div>
+              <div class="preset-item-amount">Проверить работу</div>
+            </div>
+          </div>
+          <button class="btn btn-primary" style="padding: 8px 16px; font-size: 13px;">Тест</button>
+        </div>
+        <div class="preset-item" style="margin-top: 8px;">
           <div class="preset-item-info">
             <span class="preset-item-icon">📱</span>
             <div>
@@ -2259,6 +2269,8 @@
     // ========================================
     // NOTIFICATIONS
     // ========================================
+    let reminderIntervals = [];
+
     async function requestNotificationPermission() {
       if (!('Notification' in window)) {
         showToast('Уведомления не поддерживаются');
@@ -2267,12 +2279,14 @@
 
       const permission = await Notification.requestPermission();
       state.notificationPermissionRequested = true;
-      
+
       if (permission === 'granted') {
         showToast('Уведомления включены!');
         scheduleReminders();
+        // Send test notification
+        sendLocalNotification('🎉 AquaTrack', 'Уведомления работают! Не забывайте пить воду 💧');
       }
-      
+
       saveData();
       notificationBanner.classList.remove('show');
     }
@@ -2281,24 +2295,84 @@
       if (Notification.permission !== 'granted') return;
       if (!state.settings.remindersEnabled) return;
 
-      // Clear existing
-      if ('serviceWorker' in navigator && 'getRegistrations' in window) {
-        navigator.serviceWorker.getRegistrations().then(regs => {
-          regs.forEach(reg => {
-            if (reg.pushManager) {
-              // Clear pushes
-            }
-          });
-        });
+      // Clear existing intervals
+      reminderIntervals.forEach(id => clearInterval(id));
+      reminderIntervals = [];
+
+      const times = state.settings.reminderTimes;
+
+      // Schedule reminders for each period
+      if (state.settings.remindersEnabled) {
+        // Check every minute for reminder times
+        const checkInterval = setInterval(() => {
+          checkAndNotify(times);
+        }, 60000); // Check every minute
+
+        reminderIntervals.push(checkInterval);
+
+        // Also check immediately for testing
+        checkAndNotify(times);
+      }
+    }
+
+    function checkAndNotify(times) {
+      const now = new Date();
+      const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+      // Check if DND is active
+      if (isDndActive()) return;
+
+      // Check morning reminder
+      if (state.settings.remindersEnabled && times.morning === currentTime) {
+        sendLocalNotification('☀️ Доброе утро!', 'Пора пить воду! Начните день со стакана воды 💧');
       }
 
-      // Schedule new reminders
-      const times = state.settings.reminderTimes;
-      
-      if (state.settings.remindersEnabled) {
-        // In a real app, we'd use background sync or push
-        // For now, we'll use local notifications when app is open
-        console.log('Reminders scheduled:', times);
+      // Check day reminder
+      if (state.settings.remindersEnabled && times.day === currentTime) {
+        sendLocalNotification('🌞 День!', 'Не забывайте пить воду в течение дня 💧');
+      }
+
+      // Check evening reminder
+      if (state.settings.remindersEnabled && times.evening === currentTime) {
+        sendLocalNotification('🌆 Вечер!', 'Последний приём воды перед сном 💧');
+      }
+    }
+
+    function sendLocalNotification(title, body) {
+      if (Notification.permission !== 'granted') return;
+
+      // Check DND
+      if (isDndActive()) return;
+
+      // Show notification
+      new Notification(title, {
+        body: body,
+        icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="%236366F1" d="M256 0C256 0 64 272 64 368a192 192 0 00384 0c0-96-192-368-192-368z"/></svg>',
+        badge: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="%236366F1" d="M256 0C256 0 64 272 64 368a192 192 0 00384 0c0-96-192-368-192-368z"/></svg>',
+        vibrate: [100, 50, 100],
+        tag: 'aquatrack-reminder',
+        requireInteraction: false,
+        silent: !state.settings.soundEnabled
+      });
+    }
+
+    function isDndActive() {
+      if (!state.settings.dndEnabled) return false;
+
+      const now = new Date();
+      const currentTime = now.getHours() * 60 + now.getMinutes();
+
+      const [startH, startM] = state.settings.dndStart.split(':').map(Number);
+      const [endH, endM] = state.settings.dndEnd.split(':').map(Number);
+
+      const startTime = startH * 60 + startM;
+      const endTime = endH * 60 + endM;
+
+      if (startTime > endTime) {
+        // Overnight (e.g., 22:00 - 07:00)
+        return currentTime >= startTime || currentTime < endTime;
+      } else {
+        return currentTime >= startTime && currentTime < endTime;
       }
     }
 
@@ -2486,6 +2560,18 @@
     });
 
     exportDataBtn.addEventListener('click', exportData);
+
+    // Test notification button
+    document.getElementById('testNotification')?.addEventListener('click', () => {
+      if (Notification.permission === 'granted') {
+        sendLocalNotification('🔔 Тест уведомлений', 'Уведомления работают корректно! 💧');
+        showToast('Уведомление отправлено!');
+      } else if (Notification.permission === 'default') {
+        requestNotificationPermission();
+      } else {
+        showToast('Уведомления запрещены в настройках браузера');
+      }
+    });
 
     // Notifications
     enableNotificationBtn.addEventListener('click', requestNotificationPermission);
