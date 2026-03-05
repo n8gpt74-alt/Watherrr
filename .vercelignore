@@ -1,0 +1,5 @@
+.agent/
+.qwen/
+*.md
+!README.md
+.gitignore
