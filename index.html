@@ -1,1700 +1,2699 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#6366F1">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="AquaTrack">
-  <meta name="description" content="Умный трекер водного баланса">
-  <link rel="manifest" href="manifest.json">
-  <meta property="og:title" content="AquaTrack Pro — Умный трекер воды">
-  <meta property="og:description" content="Умный трекер водного баланса">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://aquatrack-pro.vercel.app">
-  <title>AquaTrack Pro — Умный трекер воды</title>
-  <style>
-    :root {
-      --primary: #00E5FF; /* Cyber Cyan */
-      --primary-light: #80F2FF;
-      --primary-dark: #00B3CC;
-      --bg: #050505;
-      --bg-card: #0A0A0A;
-      --surface: #111111;
-      --surface-light: #1A1A1A;
-      --text: #F3F4F6;
-      --text-muted: #8B929A;
-      --border: #333333;
-      --border-focus: #00E5FF;
-      --success: #00FF41;
-      --error: #FF003C;
-      --warning: #FFEA00;
-      --info: #00E5FF;
-      --font-mono: 'SF Mono', 'Fira Code', 'Courier New', monospace;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#050505" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="apple-mobile-web-app-title" content="AquaTrack" />
+    <meta name="description" content="Умный трекер водного баланса" />
+    <link rel="manifest" href="manifest.json" />
+    <meta property="og:title" content="AquaTrack Pro — Умный трекер воды" />
+    <meta property="og:description" content="Умный трекер водного баланса" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://aquatrack-pro.vercel.app" />
+    <title>AquaTrack Pro — Умный трекер воды</title>
+    <style>
+      :root {
+        --primary: #00e5ff; /* Cyber Cyan */
+        --primary-light: #80f2ff;
+        --primary-dark: #00b3cc;
+        --bg: #050505;
+        --bg-card: #0a0a0a;
+        --surface: #111111;
+        --surface-light: #1a1a1a;
+        --text: #f3f4f6;
+        --text-muted: #8b929a;
+        --border: #333333;
+        --border-focus: #00e5ff;
+        --success: #00ff41;
+        --error: #ff003c;
+        --warning: #ffea00;
+        --info: #00e5ff;
+        --font-mono: "SF Mono", "Fira Code", "Courier New", monospace;
+      }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    html { font-size: 16px; scroll-behavior: smooth; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      overflow-x: hidden;
-      letter-spacing: -0.02em;
-    }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+      }
+      html {
+        font-size: 16px;
+        scroll-behavior: smooth;
+      }
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+        overflow-x: hidden;
+        letter-spacing: -0.02em;
+      }
 
-    .gradient-bg {
-      position: fixed;
-      inset: 0;
-      background: radial-gradient(circle at 50% 0%, #151515 0%, #050505 100%);
-      z-index: -1;
-    }
+      .gradient-bg {
+        position: fixed;
+        inset: 0;
+        background: radial-gradient(circle at 50% 0%, #151515 0%, #050505 100%);
+        z-index: -1;
+      }
 
-    .app-container { max-width: 390px; max-width: 65ch; margin: 0 auto; min-height: 100vh; position: relative; padding-bottom: 100px; display: flex; flex-direction: column;}
-    
-    .screen { display: none; padding: 40px 20px 40px; }
-    .screen.active { display: block; animation: sharpFade 0.3s cubic-bezier(0.0, 0.0, 0.2, 1); }
+      .app-container {
+        max-width: 420px;
+        margin: 0 auto;
+        min-height: 100vh;
+        position: relative;
+        padding-bottom: 100px;
+        display: flex;
+        flex-direction: column;
+      }
 
-    @keyframes sharpFade {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+      .screen {
+        display: none;
+        padding: 40px 20px 40px;
+      }
+      .screen.active {
+        display: block;
+        animation: sharpFade 0.3s cubic-bezier(0, 0, 0.2, 1);
+      }
 
-    /* ===== ONBOARDING ===== */
-    .onboarding-screen {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      text-align: center;
-      padding: 40px 20px;
-    }
-    .onboarding-screen.active { display: flex; }
+      @keyframes sharpFade {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
 
-    .vibrant-drop {
-      width: 120px;
-      height: 120px;
-      margin-bottom: 40px;
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 2px solid var(--primary);
-      transform: rotate(45deg);
-      box-shadow: 8px 8px 0 rgba(0, 229, 255, 0.2);
-    }
-    .vibrant-drop::after {
-      content: '💧';
-      font-size: 48px;
-      transform: rotate(-45deg);
-    }
+      /* ===== ONBOARDING ===== */
+      .onboarding-screen {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        text-align: center;
+        padding: 40px 20px;
+      }
+      .onboarding-screen.active {
+        display: flex;
+      }
 
-    .onboarding-title {
-      font-size: 42px;
-      font-weight: 900;
-      color: var(--text);
-      margin-bottom: 14px;
-      text-transform: uppercase;
-      letter-spacing: -1.5px;
-      line-height: 1;
-    }
+      .vibrant-drop {
+        width: 120px;
+        height: 120px;
+        margin-bottom: 40px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid var(--primary);
+        transform: rotate(45deg);
+        box-shadow: 8px 8px 0 rgba(0, 229, 255, 0.2);
+      }
+      .vibrant-drop::after {
+        content: "💧";
+        font-size: 48px;
+        transform: rotate(-45deg);
+      }
 
-    .onboarding-subtitle {
-      font-size: 14px;
-      color: var(--text-muted);
-      margin-bottom: 40px;
-      line-height: 1.2;
-      font-family: var(--font-mono);
-      text-transform: uppercase;
-    }
+      .onboarding-title {
+        font-size: 42px;
+        font-weight: 900;
+        color: var(--text);
+        margin-bottom: 14px;
+        text-transform: uppercase;
+        letter-spacing: -1.5px;
+        line-height: 1;
+      }
 
-    .vibrant-cta {
-      width: 100%;
-      height: 60px;
-      background: var(--primary);
-      color: #000;
-      border: none;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-weight: 900;
-      font-size: 16px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      transition: all 0.2s cubic-bezier(0.0, 0.0, 0.2, 1);
-      box-shadow: 4px 4px 0 var(--border);
-    }
+      .onboarding-subtitle {
+        font-size: 14px;
+        color: var(--text-muted);
+        margin-bottom: 40px;
+        line-height: 1.2;
+        font-family: var(--font-mono);
+        text-transform: uppercase;
+      }
 
-    .vibrant-cta:active { 
-      transform: translate(2px, 2px); 
-      box-shadow: 2px 2px 0 var(--border);
-    }
+      .vibrant-cta {
+        width: 100%;
+        height: 60px;
+        background: var(--primary);
+        color: #000;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-weight: 900;
+        font-size: 16px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.2s cubic-bezier(0, 0, 0.2, 1);
+        box-shadow: 4px 4px 0 var(--border);
+      }
 
-    .scroll-to-app { animation: scrollToApp 0.5s cubic-bezier(0.0, 0.0, 0.2, 1) forwards; }
-    @keyframes scrollToApp { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-100vh); opacity: 0; } }
+      .vibrant-cta:active {
+        transform: translate(2px, 2px);
+        box-shadow: 2px 2px 0 var(--border);
+      }
 
-    /* ===== COMMON COMPONENTS ===== */
-    .header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 32px;
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 16px;
-    }
+      .scroll-to-app {
+        animation: scrollToApp 0.5s cubic-bezier(0, 0, 0.2, 1) forwards;
+      }
+      @keyframes scrollToApp {
+        0% {
+          transform: translateY(0);
+          opacity: 1;
+        }
+        100% {
+          transform: translateY(-100vh);
+          opacity: 0;
+        }
+      }
 
-    .header-title {
-      font-size: 24px;
-      font-weight: 900;
-      color: var(--text);
-      text-transform: uppercase;
-      letter-spacing: -0.5px;
-    }
+      /* ===== COMMON COMPONENTS ===== */
+      .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 32px;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 16px;
+      }
 
-    .icon-btn {
-      width: 44px;
-      height: 44px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
+      .header-title {
+        font-size: 24px;
+        font-weight: 900;
+        color: var(--text);
+        text-transform: uppercase;
+        letter-spacing: -0.5px;
+      }
 
-    .icon-btn:hover { border-color: var(--primary); color: var(--primary); }
-    .icon-btn:active { transform: translate(2px, 2px); }
-    .icon-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: square; }
+      .icon-btn {
+        width: 44px;
+        height: 44px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
 
-    .card {
-      background: var(--surface);
-      padding: 24px;
-      border: 1px solid var(--border);
-      margin-bottom: 16px;
-      position: relative;
-    }
+      .icon-btn:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+      }
+      .icon-btn:active {
+        transform: translate(2px, 2px);
+      }
+      .icon-btn svg {
+        width: 18px;
+        height: 18px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 2;
+        stroke-linecap: square;
+      }
 
-    .card::before {
-      content: '';
-      position: absolute;
-      top: -1px; left: -1px;
-      width: 10px; height: 10px;
-      border-top: 2px solid var(--primary);
-      border-left: 2px solid var(--primary);
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-    
-    .card:hover::before { opacity: 1; }
+      .card {
+        background: var(--surface);
+        padding: 24px;
+        border: 1px solid var(--border);
+        margin-bottom: 16px;
+        position: relative;
+      }
 
-    .card-title {
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--text-muted);
-      margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      font-family: var(--font-mono);
-    }
+      .card::before {
+        content: "";
+        position: absolute;
+        top: -1px;
+        left: -1px;
+        width: 10px;
+        height: 10px;
+        border-top: 2px solid var(--primary);
+        border-left: 2px solid var(--primary);
+        opacity: 0;
+        transition: opacity 0.3s;
+      }
 
-    .btn {
-      padding: 14px 20px;
-      border: 1px solid transparent;
-      font-size: 14px;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      cursor: pointer;
-      transition: all 0.2s;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
+      .card:hover::before {
+        opacity: 1;
+      }
 
-    .btn-primary { background: var(--primary); color: #000; box-shadow: 4px 4px 0 var(--border); }
-    .btn-primary:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 var(--border); }
+      .card-title {
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--text-muted);
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-family: var(--font-mono);
+      }
 
-    .btn-secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
-    .btn-secondary:hover { border-color: var(--primary); color: var(--primary); }
-    
-    .btn-danger { background: var(--error); color: #000; box-shadow: 4px 4px 0 #80001e; }
-    .btn-full { width: 100%; }
+      .btn {
+        padding: 14px 20px;
+        border: 1px solid transparent;
+        font-size: 14px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
 
-    .toggle {
-      width: 48px;
-      height: 24px;
-      background: var(--surface-light);
-      position: relative;
-      cursor: pointer;
-      transition: background 0.2s;
-      border: 1px solid var(--border);
-    }
+      .btn-primary {
+        background: var(--primary);
+        color: #000;
+        box-shadow: 4px 4px 0 var(--border);
+      }
+      .btn-primary:active {
+        transform: translate(2px, 2px);
+        box-shadow: 2px 2px 0 var(--border);
+      }
 
-    .toggle.active { background: var(--primary); border-color: var(--primary); }
+      .btn-secondary {
+        background: transparent;
+        color: var(--text);
+        border: 1px solid var(--border);
+      }
+      .btn-secondary:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+      }
 
-    .toggle-knob {
-      width: 20px;
-      height: 20px;
-      background: var(--text);
-      position: absolute;
-      top: 1px; left: 1px;
-      transition: transform 0.2s cubic-bezier(0.0, 0.0, 0.2, 1);
-    }
+      .btn-danger {
+        background: var(--error);
+        color: #000;
+        box-shadow: 4px 4px 0 #80001e;
+      }
+      .btn-full {
+        width: 100%;
+      }
 
-    .toggle.active .toggle-knob { transform: translateX(24px); background: #000; }
+      .toggle {
+        width: 48px;
+        height: 24px;
+        background: var(--surface-light);
+        position: relative;
+        cursor: pointer;
+        transition: background 0.2s;
+        border: 1px solid var(--border);
+      }
 
-    /* ===== PROGRESS RING ===== */
-    .progress-container {
-      position: relative;
-      width: 260px;
-      height: 260px;
-      margin: 20px auto 40px;
-    }
+      .toggle.active {
+        background: var(--primary);
+        border-color: var(--primary);
+      }
 
-    .progress-ring { transform: rotate(-90deg); filter: drop-shadow(0 0 10px rgba(0,229,255,0.2)); }
-    .progress-ring__track { fill: none; stroke: var(--surface-light); stroke-width: 4; stroke-linecap: square; }
-    .progress-ring__progress {
-      fill: none;
-      stroke: var(--primary);
-      stroke-width: 6;
-      stroke-linecap: square;
-      transition: stroke-dashoffset 0.5s cubic-bezier(0.0, 0.0, 0.2, 1);
-    }
-    .progress-ring__thumb {
-      fill: var(--primary);
-      stroke: var(--bg);
-      stroke-width: 2;
-      transition: transform 0.5s cubic-bezier(0.0, 0.0, 0.2, 1);
-    }
+      .toggle-knob {
+        width: 20px;
+        height: 20px;
+        background: var(--text);
+        position: absolute;
+        top: 1px;
+        left: 1px;
+        transition: transform 0.2s cubic-bezier(0, 0, 0.2, 1);
+      }
 
-    .progress-center {
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      text-align: center;
-      width: 100%;
-    }
+      .toggle.active .toggle-knob {
+        transform: translateX(24px);
+        background: #000;
+      }
 
-    .progress-label { font-size: 10px; font-weight: 500; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 2px; font-family: var(--font-mono); }
-    .progress-value {
-      font-size: 56px;
-      font-weight: 900;
-      color: var(--text);
-      line-height: 1;
-      letter-spacing: -2px;
-    }
-    .progress-unit { font-size: 12px; font-weight: 500; color: var(--text-muted); margin-top: 4px; font-family: var(--font-mono); }
-    .progress-delta {
-      font-size: 10px;
-      font-weight: 500;
-      margin-top: 16px;
-      display: inline-block;
-      padding: 4px 8px;
-      border: 1px solid;
-      font-family: var(--font-mono);
-      text-transform: uppercase;
-    }
+      /* ===== PROGRESS RING ===== */
+      .progress-container {
+        position: relative;
+        width: 260px;
+        height: 260px;
+        margin: 20px auto 40px;
+      }
 
-    .progress-delta.positive { color: var(--success); border-color: var(--success); }
-    .progress-delta.negative { color: var(--error); border-color: var(--error); }
+      .progress-ring {
+        transform: rotate(-90deg);
+        filter: drop-shadow(0 0 10px rgba(0, 229, 255, 0.2));
+      }
+      .progress-ring__track {
+        fill: none;
+        stroke: var(--surface-light);
+        stroke-width: 4;
+        stroke-linecap: square;
+      }
+      .progress-ring__progress {
+        fill: none;
+        stroke: var(--primary);
+        stroke-width: 6;
+        stroke-linecap: square;
+        transition: stroke-dashoffset 0.5s cubic-bezier(0, 0, 0.2, 1);
+      }
+      .progress-ring__thumb {
+        fill: var(--primary);
+        stroke: var(--bg);
+        stroke-width: 2;
+        transition: transform 0.5s cubic-bezier(0, 0, 0.2, 1);
+      }
 
-    /* ===== QUICK ADD ===== */
-    .quick-add {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-      margin-bottom: 24px;
-    }
+      .progress-center {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        width: 100%;
+      }
 
-    .quick-add-btn {
-      height: 70px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
+      .progress-label {
+        font-size: 10px;
+        font-weight: 500;
+        color: var(--text-muted);
+        margin-bottom: 4px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-family: var(--font-mono);
+      }
+      .progress-value {
+        font-size: 56px;
+        font-weight: 900;
+        color: var(--text);
+        line-height: 1;
+        letter-spacing: -2px;
+      }
+      .progress-unit {
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--text-muted);
+        margin-top: 4px;
+        font-family: var(--font-mono);
+      }
+      .progress-delta {
+        font-size: 10px;
+        font-weight: 500;
+        margin-top: 16px;
+        display: inline-block;
+        padding: 4px 8px;
+        border: 1px solid;
+        font-family: var(--font-mono);
+        text-transform: uppercase;
+      }
 
-    .quick-add-btn:hover { border-color: var(--text-muted); }
-    .quick-add-btn:active { transform: translateY(2px); }
-    .quick-add-btn.selected {
-      border-color: var(--primary);
-      background: rgba(0, 229, 255, 0.1);
-      box-shadow: inset 2px 2px 0 var(--primary);
-    }
+      .progress-delta.positive {
+        color: var(--success);
+        border-color: var(--success);
+      }
+      .progress-delta.negative {
+        color: var(--error);
+        border-color: var(--error);
+      }
 
-    .quick-add-icon svg { width: 24px; height: 24px; stroke: var(--text); fill: none; stroke-width: 1.5; stroke-linecap: square; }
-    .quick-add-btn.selected .quick-add-icon svg { stroke: var(--primary); }
-    .quick-add-label { font-size: 11px; font-weight: 500; color: var(--text-muted); font-family: var(--font-mono); }
-    .quick-add-btn.selected .quick-add-label { color: var(--primary); }
+      /* ===== QUICK ADD ===== */
+      .quick-add {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        margin-bottom: 24px;
+      }
 
-    /* ===== DRINK TYPE SELECTOR ===== */
-    .drink-types {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 16px;
-      overflow-x: auto;
-      padding-bottom: 4px;
-      scrollbar-width: none;
-    }
-    .drink-types::-webkit-scrollbar { display: none; }
+      .quick-add-btn {
+        height: 70px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
 
-    .drink-type-btn {
-      flex-shrink: 0;
-      padding: 12px 16px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
+      .quick-add-btn:hover {
+        border-color: var(--text-muted);
+      }
+      .quick-add-btn:active {
+        transform: translateY(2px);
+      }
+      .quick-add-btn.selected {
+        border-color: var(--primary);
+        background: rgba(0, 229, 255, 0.1);
+        box-shadow: inset 2px 2px 0 var(--primary);
+      }
 
-    .drink-type-btn.selected {
-      border-color: var(--primary);
-      box-shadow: 2px 2px 0 var(--primary);
-    }
+      .quick-add-icon svg {
+        width: 24px;
+        height: 24px;
+        stroke: var(--text);
+        fill: none;
+        stroke-width: 1.5;
+        stroke-linecap: square;
+      }
+      .quick-add-btn.selected .quick-add-icon svg {
+        stroke: var(--primary);
+      }
+      .quick-add-label {
+        font-size: 11px;
+        font-weight: 500;
+        color: var(--text-muted);
+        font-family: var(--font-mono);
+      }
+      .quick-add-btn.selected .quick-add-label {
+        color: var(--primary);
+      }
 
-    .drink-type-icon { font-size: 20px; filter: grayscale(1); }
-    .drink-type-btn.selected .drink-type-icon { filter: grayscale(0); }
-    .drink-type-name { font-size: 10px; font-weight: 500; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-    .drink-type-btn.selected .drink-type-name { color: var(--primary); }
-    .drink-type-coef { font-size: 10px; color: var(--border); font-family: var(--font-mono); }
+      /* ===== DRINK TYPE SELECTOR ===== */
+      .drink-types {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 16px;
+        overflow-x: auto;
+        padding-bottom: 4px;
+        scrollbar-width: none;
+      }
+      .drink-types::-webkit-scrollbar {
+        display: none;
+      }
 
-    /* ===== STATS GRID ===== */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1px;
-      background: var(--border);
-      border: 1px solid var(--border);
-      margin-bottom: 24px;
-    }
+      .drink-type-btn {
+        flex-shrink: 0;
+        padding: 12px 16px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
 
-    .stat-card {
-      background: var(--surface);
-      padding: 20px 16px;
-      cursor: default;
-    }
+      .drink-type-btn.selected {
+        border-color: var(--primary);
+        box-shadow: 2px 2px 0 var(--primary);
+      }
 
-    .stat-icon { margin-bottom: 12px; }
-    .stat-icon svg { width: 20px; height: 20px; stroke: var(--primary); fill: none; stroke-width: 1.5; stroke-linecap: square; }
-    
-    .stat-value { font-size: 28px; font-weight: 900; color: var(--text); margin-bottom: 4px; letter-spacing: -1px; }
-    .stat-label { font-size: 10px; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 1px; font-family: var(--font-mono); }
+      .drink-type-icon {
+        font-size: 20px;
+        filter: grayscale(1);
+      }
+      .drink-type-btn.selected .drink-type-icon {
+        filter: grayscale(0);
+      }
+      .drink-type-name {
+        font-size: 10px;
+        font-weight: 500;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .drink-type-btn.selected .drink-type-name {
+        color: var(--primary);
+      }
+      .drink-type-coef {
+        font-size: 10px;
+        color: var(--border);
+        font-family: var(--font-mono);
+      }
 
-    /* ===== CALENDAR & ACHIEVEMENTS ===== */
-    .calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 16px; }
-    .calendar-header { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 8px; }
-    .calendar-day-header { text-align: center; font-size: 10px; font-weight: 500; color: var(--text-muted); padding: 8px 0; text-transform: uppercase; font-family: var(--font-mono); }
-    
-    .calendar-day {
-      aspect-ratio: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      font-weight: 500;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      position: relative;
-    }
+      /* ===== STATS GRID ===== */
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1px;
+        background: var(--border);
+        border: 1px solid var(--border);
+        margin-bottom: 24px;
+      }
 
-    .calendar-day.today { border-color: var(--primary); color: var(--primary); }
-    .calendar-day.success { background: var(--success); color: #000; border-color: var(--success); }
-    .calendar-day.success .percentage { color: rgba(0,0,0,0.6); }
-    .calendar-day.partial { border-color: var(--warning); color: var(--warning); }
-    .calendar-day.missed { border-color: var(--error); color: var(--error); opacity: 0.6; }
-    .calendar-day.empty { opacity: 0; }
-    .calendar-day .percentage { font-size: 8px; color: var(--text-muted); margin-top: 2px; font-family: var(--font-mono); }
+      .stat-card {
+        background: var(--surface);
+        padding: 20px 16px;
+        cursor: default;
+      }
 
-    .achievements-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-    .achievement {
-      background: var(--surface);
-      padding: 16px 8px;
-      text-align: center;
-      border: 1px solid var(--border);
-      transition: all 0.2s;
-    }
+      .stat-icon {
+        margin-bottom: 12px;
+      }
+      .stat-icon svg {
+        width: 20px;
+        height: 20px;
+        stroke: var(--primary);
+        fill: none;
+        stroke-width: 1.5;
+        stroke-linecap: square;
+      }
 
-    .achievement.locked { opacity: 0.3; filter: grayscale(1); border-style: dashed; }
-    .achievement.unlocked { border-color: var(--primary); box-shadow: 2px 2px 0 rgba(0, 229, 255, 0.2); }
-    .achievement-icon { font-size: 28px; margin-bottom: 12px; }
-    .achievement-name { font-size: 10px; font-weight: 900; margin-bottom: 4px; text-transform: uppercase; }
-    .achievement-desc { font-size: 9px; color: var(--text-muted); font-family: var(--font-mono); }
+      .stat-value {
+        font-size: 28px;
+        font-weight: 900;
+        color: var(--text);
+        margin-bottom: 4px;
+        letter-spacing: -1px;
+      }
+      .stat-label {
+        font-size: 10px;
+        color: var(--text-muted);
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-family: var(--font-mono);
+      }
 
-    /* ===== HOURLY CHART ===== */
-    .hourly-chart { display: flex; align-items: flex-end; justify-content: space-between; height: 120px; padding: 16px 0; gap: 2px; }
-    .hour-bar { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
-    .hour-bar-fill { width: 100%; max-width: 14px; background: var(--primary); transition: height 0.3s ease; min-height: 2px; }
-    .hour-bar-label { font-size: 8px; color: var(--text-muted); font-family: var(--font-mono); transform: rotate(-90deg); margin-top: 10px; }
+      /* ===== CALENDAR & ACHIEVEMENTS ===== */
+      .calendar {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 4px;
+        margin-top: 16px;
+      }
+      .calendar-header {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 4px;
+        margin-bottom: 8px;
+      }
+      .calendar-day-header {
+        text-align: center;
+        font-size: 10px;
+        font-weight: 500;
+        color: var(--text-muted);
+        padding: 8px 0;
+        text-transform: uppercase;
+        font-family: var(--font-mono);
+      }
 
-    /* ===== INPUTS ===== */
-    .input-group { margin-bottom: 16px; }
-    .input-label { font-size: 10px; font-weight: 500; color: var(--text-muted); margin-bottom: 8px; display: block; text-transform: uppercase; letter-spacing: 1px; }
-    .input {
-      width: 100%;
-      height: 48px;
-      padding: 0 16px;
-      border: 1px solid var(--border);
-      background: var(--bg);
-      font-size: 16px;
-      font-weight: 500;
-      color: var(--text);
-      transition: all 0.2s;
-      font-family: var(--font-mono);
-    }
-    .input:focus { outline: none; border-color: var(--primary); box-shadow: inset 4px 0 0 var(--primary); }
-    .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    
-    .select {
-      appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%238B929A' stroke-width='2' stroke-linecap='square'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 12px center;
-      background-size: 16px;
-    }
+      .calendar-day {
+        aspect-ratio: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 500;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        position: relative;
+      }
 
-    /* ===== BOTTOM NAV ===== */
-    .bottom-nav {
-      position: fixed;
-      bottom: 0; left: 50%;
-      transform: translateX(-50%);
-      width: 100%;
-      max-width: 390px; max-width: 65ch;
-      height: 80px;
-      background: var(--bg);
-      border-top: 1px solid var(--border);
-      display: flex;
-      align-items: flex-start;
-      padding-top: 8px;
-      z-index: 100;
-    }
-    .menu-btns { display: flex; flex: 1; justify-content: space-around; align-items: center; }
-    .menu-btn {
-      display: flex; flex-direction: column; align-items: center; gap: 6px;
-      padding: 8px; cursor: pointer; border: none; background: transparent;
-      min-width: 60px;
-    }
-    .menu-btn svg { width: 22px; height: 22px; stroke: var(--text-muted); fill: none; stroke-width: 1.5; stroke-linecap: square; transition: all 0.2s; }
-    .menu-btn-label { font-size: 9px; font-weight: 500; color: var(--text-muted); transition: all 0.2s; text-transform: uppercase; letter-spacing: 0.5px; }
-    .menu-btn.active svg { stroke: var(--primary); }
-    .menu-btn.active .menu-btn-label { color: var(--text); }
-    .menu-btn:active { transform: translateY(2px); }
+      .calendar-day.today {
+        border-color: var(--primary);
+        color: var(--primary);
+      }
+      .calendar-day.success {
+        background: var(--success);
+        color: #000;
+        border-color: var(--success);
+      }
+      .calendar-day.success .percentage {
+        color: rgba(0, 0, 0, 0.6);
+      }
+      .calendar-day.partial {
+        border-color: var(--warning);
+        color: var(--warning);
+      }
+      .calendar-day.missed {
+        border-color: var(--error);
+        color: var(--error);
+        opacity: 0.6;
+      }
+      .calendar-day.empty {
+        opacity: 0;
+      }
+      .calendar-day .percentage {
+        font-size: 8px;
+        color: var(--text-muted);
+        margin-top: 2px;
+        font-family: var(--font-mono);
+      }
 
-    .fab-container { width: 64px; display: flex; justify-content: center; }
-    .fab {
-      width: 54px; height: 54px;
-      background: var(--primary);
-      border: none;
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer;
-      box-shadow: 4px 4px 0 var(--border);
-      margin-top: -24px;
-      transition: all 0.15s;
-    }
-    .fab:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 var(--border); }
-    .fab svg { width: 24px; height: 24px; stroke: #000; fill: none; stroke-width: 2; stroke-linecap: square; }
+      .achievements-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+      }
+      .achievement {
+        background: var(--surface);
+        padding: 16px 8px;
+        text-align: center;
+        border: 1px solid var(--border);
+        transition: all 0.2s;
+      }
 
-    /* ===== TOAST & MODAL ===== */
-    .toast {
-      position: fixed;
-      bottom: 100px; left: 50%;
-      transform: translateX(-50%) translateY(20px);
-      background: var(--surface);
-      color: var(--text);
-      border: 1px solid var(--primary);
-      padding: 12px 20px;
-      font-size: 12px;
-      font-weight: 500;
-      text-transform: uppercase;
-      opacity: 0;
-      transition: all 0.2s;
-      z-index: 200;
-      text-align: center;
-      box-shadow: 4px 4px 0 rgba(0, 229, 255, 0.2);
-      font-family: var(--font-mono);
-    }
-    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+      .achievement.locked {
+        opacity: 0.3;
+        filter: grayscale(1);
+        border-style: dashed;
+      }
+      .achievement.unlocked {
+        border-color: var(--primary);
+        box-shadow: 2px 2px 0 rgba(0, 229, 255, 0.2);
+      }
+      .achievement-icon {
+        font-size: 28px;
+        margin-bottom: 12px;
+      }
+      .achievement-name {
+        font-size: 10px;
+        font-weight: 900;
+        margin-bottom: 4px;
+        text-transform: uppercase;
+      }
+      .achievement-desc {
+        font-size: 9px;
+        color: var(--text-muted);
+        font-family: var(--font-mono);
+      }
 
-    .modal-overlay {
-      position: fixed; inset: 0;
-      background: rgba(0, 0, 0, 0.9);
-      display: none; align-items: center; justify-content: center;
-      z-index: 300; padding: 20px;
-    }
-    .modal-overlay.active { display: flex; }
-    .modal {
-      background: var(--bg);
-      padding: 24px;
-      width: 100%; max-width: 320px;
-      border: 1px solid var(--border);
-      box-shadow: 8px 8px 0 rgba(0, 229, 255, 0.1);
-    }
-    .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
-    .modal-title { font-size: 16px; font-weight: 900; text-transform: uppercase; }
-    .modal-close { width: 44px; height: 44px; background: transparent; border: 1px solid var(--border); color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; }
-    .modal-close:hover { border-color: var(--primary); color: var(--primary); }
-    .modal-close svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
-    .modal-body { margin-bottom: 24px; font-size: 14px; color: var(--text-muted); line-height: 1.5; }
-    .modal-buttons { display: flex; flex-direction: column; gap: 12px; }
+      /* ===== HOURLY CHART ===== */
+      .hourly-chart {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        height: 120px;
+        padding: 16px 0;
+        gap: 2px;
+      }
+      .hour-bar {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+      }
+      .hour-bar-fill {
+        width: 100%;
+        max-width: 14px;
+        background: var(--primary);
+        transition: height 0.3s ease;
+        min-height: 2px;
+      }
+      .hour-bar-label {
+        font-size: 8px;
+        color: var(--text-muted);
+        font-family: var(--font-mono);
+        transform: rotate(-90deg);
+        margin-top: 10px;
+      }
 
-    /* ===== CONFETTI ===== */
-    .confetti { position: fixed; width: 6px; height: 6px; background: var(--primary); animation: confettiFall 2s ease-in forwards; z-index: 1000; }
-    @keyframes confettiFall { 0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+      /* ===== INPUTS ===== */
+      .input-group {
+        margin-bottom: 16px;
+      }
+      .input-label {
+        font-size: 10px;
+        font-weight: 500;
+        color: var(--text-muted);
+        margin-bottom: 8px;
+        display: block;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+      .input {
+        width: 100%;
+        height: 48px;
+        padding: 0 16px;
+        border: 1px solid var(--border);
+        background: var(--bg);
+        font-size: 16px;
+        font-weight: 500;
+        color: var(--text);
+        transition: all 0.2s;
+        font-family: var(--font-mono);
+      }
+      .input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: inset 4px 0 0 var(--primary);
+      }
+      .input-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
 
-    /* ===== BANNERS & TIPS ===== */
-    .notification-banner {
-      background: var(--surface);
-      border: 1px solid var(--warning);
-      padding: 16px; margin-bottom: 16px; display: none;
-      box-shadow: 4px 4px 0 rgba(255, 234, 0, 0.2);
-    }
-    .notification-banner.show { display: block; }
-    .notification-banner-title { font-size: 12px; font-weight: 900; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; color: var(--warning); text-transform: uppercase; }
-    .notification-banner-text { font-size: 12px; color: var(--text-muted); margin-bottom: 16px; }
-    .notification-banner-buttons { display: flex; gap: 8px; }
-    
-    .tip-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      padding: 16px; margin-bottom: 24px;
-      border-left: 2px solid var(--info);
-    }
-    .tip-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-    .tip-card-icon svg { width: 16px; height: 16px; stroke: var(--info); fill: none; stroke-width: 2; }
-    .tip-card-title { font-size: 10px; font-weight: 900; text-transform: uppercase; color: var(--info); letter-spacing: 1px; }
-    .tip-card-text { font-size: 12px; color: var(--text-muted); line-height: 1.5; font-family: var(--font-mono); }
+      .select {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%238B929A' stroke-width='2' stroke-linecap='square'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        background-size: 16px;
+      }
 
-    /* ===== LISTS ===== */
-    .preset-item {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 16px; background: var(--surface);
-      border: 1px solid var(--border);
-      margin-bottom: 8px;
-    }
-    .preset-item-info { display: flex; align-items: center; gap: 12px; }
-    .preset-item-name { font-size: 14px; font-weight: 500; color: var(--text); }
-    .preset-item-amount { font-size: 12px; color: var(--text-muted); font-family: var(--font-mono); margin-top: 4px; }
-    .preset-item-actions { display: flex; gap: 8px; }
-    .preset-item-btn { width: 32px; height: 32px; background: var(--bg); border: 1px solid var(--border); color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; }
-    .preset-item-btn:hover { border-color: var(--primary); color: var(--primary); }
-    .preset-item-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.5; }
+      /* ===== BOTTOM NAV ===== */
+      .bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100%;
+        max-width: 420px;
+        height: 80px;
+        background: var(--bg);
+        border-top: 1px solid var(--border);
+        display: flex;
+        align-items: flex-start;
+        padding-top: 8px;
+        z-index: 100;
+      }
+      .menu-btns {
+        display: flex;
+        flex: 1;
+        justify-content: space-around;
+        align-items: center;
+      }
+      .menu-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        padding: 8px;
+        cursor: pointer;
+        border: none;
+        background: transparent;
+        min-width: 60px;
+      }
+      .menu-btn svg {
+        width: 22px;
+        height: 22px;
+        stroke: var(--text-muted);
+        fill: none;
+        stroke-width: 1.5;
+        stroke-linecap: square;
+        transition: all 0.2s;
+      }
+      .menu-btn-label {
+        font-size: 9px;
+        font-weight: 500;
+        color: var(--text-muted);
+        transition: all 0.2s;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .menu-btn.active svg {
+        stroke: var(--primary);
+      }
+      .menu-btn.active .menu-btn-label {
+        color: var(--text);
+      }
+      .menu-btn:active {
+        transform: translateY(2px);
+      }
 
-    .reminder-time {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 16px; background: var(--surface);
-      border: 1px solid var(--border);
-      margin-bottom: 8px;
-    }
-    .reminder-time-label { font-size: 12px; font-weight: 500; text-transform: uppercase; }
-    .reminder-time-value { font-size: 14px; color: var(--primary); font-family: var(--font-mono); margin-top: 4px; font-weight: 500; }
-    
-    .section-title {
-      font-size: 10px; font-weight: 900; color: var(--text-muted);
-      text-transform: uppercase; letter-spacing: 1.5px;
-      margin: 32px 0 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
-    }
-    .section-title:first-child { margin-top: 0; }
+      .fab-container {
+        width: 64px;
+        display: flex;
+        justify-content: center;
+      }
+      .fab {
+        width: 54px;
+        height: 54px;
+        background: var(--primary);
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 4px 4px 0 var(--border);
+        margin-top: -24px;
+        transition: all 0.15s;
+      }
+      .fab:active {
+        transform: translate(2px, 2px);
+        box-shadow: 2px 2px 0 var(--border);
+      }
+      .fab svg {
+        width: 24px;
+        height: 24px;
+        stroke: #000;
+        fill: none;
+        stroke-width: 2;
+        stroke-linecap: square;
+      }
 
-  </style>
-</head>
-<body>
-  <div class="gradient-bg"></div>
-  
-  
-  
+      /* ===== TOAST & MODAL ===== */
+      .toast {
+        position: fixed;
+        bottom: 100px;
+        left: 50%;
+        transform: translateX(-50%) translateY(20px);
+        background: var(--surface);
+        color: var(--text);
+        border: 1px solid var(--primary);
+        padding: 12px 20px;
+        font-size: 12px;
+        font-weight: 500;
+        text-transform: uppercase;
+        opacity: 0;
+        transition: all 0.2s;
+        z-index: 200;
+        text-align: center;
+        box-shadow: 4px 4px 0 rgba(0, 229, 255, 0.2);
+        font-family: var(--font-mono);
+      }
+      .toast.show {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+      }
 
-  
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.9);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 300;
+        padding: 20px;
+      }
+      .modal-overlay.active {
+        display: flex;
+      }
+      .modal {
+        background: var(--bg);
+        padding: 24px;
+        width: 100%;
+        max-width: 320px;
+        border: 1px solid var(--border);
+        box-shadow: 8px 8px 0 rgba(0, 229, 255, 0.1);
+      }
+      .modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 24px;
+      }
+      .modal-title {
+        font-size: 16px;
+        font-weight: 900;
+        text-transform: uppercase;
+      }
+      .modal-close {
+        width: 44px;
+        height: 44px;
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--text);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .modal-close:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+      }
+      .modal-close svg {
+        width: 14px;
+        height: 14px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 2;
+      }
+      .modal-body {
+        margin-bottom: 24px;
+        font-size: 14px;
+        color: var(--text-muted);
+        line-height: 1.5;
+      }
+      .modal-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
 
-  <div class="app-container">
-    <!-- ===== ONBOARDING ===== -->
-    <div class="screen onboarding-screen active" id="screen-onboarding">
-      <div class="vibrant-drop">
-        <div class="drop-gradient"></div>
-        <div class="drop-shine"></div>
-      </div>
-      <h1 class="onboarding-title">AquaTrack Pro</h1>
-      <p class="onboarding-subtitle">Умный трекер водного баланса<br>с персональными рекомендациями</p>
-      <button class="vibrant-cta" id="startButton" aria-label="Начать">
-        <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </button>
-    </div>
+      /* ===== CONFETTI ===== */
+      .confetti {
+        position: fixed;
+        width: 6px;
+        height: 6px;
+        background: var(--primary);
+        animation: confettiFall 2s ease-in forwards;
+        z-index: 1000;
+      }
+      @keyframes confettiFall {
+        0% {
+          transform: translateY(-100vh) rotate(0deg);
+          opacity: 1;
+        }
+        100% {
+          transform: translateY(100vh) rotate(720deg);
+          opacity: 0;
+        }
+      }
 
-    <!-- ===== TRACKING ===== -->
-    <div class="screen tracking-screen" id="screen-tracking">
-      <header class="header">
-        <h2 class="header-title" id="headerDate">Сегодня</h2>
-        <button class="icon-btn" id="settingsBtn" aria-label="Настройки">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6m11-7h-6m-6 0H1"/></svg>
+      /* ===== BANNERS & TIPS ===== */
+      .notification-banner {
+        background: var(--surface);
+        border: 1px solid var(--warning);
+        padding: 16px;
+        margin-bottom: 16px;
+        display: none;
+        box-shadow: 4px 4px 0 rgba(255, 234, 0, 0.2);
+      }
+      .notification-banner.show {
+        display: block;
+      }
+      .notification-banner-title {
+        font-size: 12px;
+        font-weight: 900;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--warning);
+        text-transform: uppercase;
+      }
+      .notification-banner-text {
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-bottom: 16px;
+      }
+      .notification-banner-buttons {
+        display: flex;
+        gap: 8px;
+      }
+
+      .tip-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        padding: 16px;
+        margin-bottom: 24px;
+        border-left: 2px solid var(--info);
+      }
+      .tip-card-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 8px;
+      }
+      .tip-card-icon svg {
+        width: 16px;
+        height: 16px;
+        stroke: var(--info);
+        fill: none;
+        stroke-width: 2;
+      }
+      .tip-card-title {
+        font-size: 10px;
+        font-weight: 900;
+        text-transform: uppercase;
+        color: var(--info);
+        letter-spacing: 1px;
+      }
+      .tip-card-text {
+        font-size: 12px;
+        color: var(--text-muted);
+        line-height: 1.5;
+        font-family: var(--font-mono);
+      }
+
+      /* ===== LISTS ===== */
+      .preset-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        margin-bottom: 8px;
+      }
+      .preset-item-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .preset-item-name {
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--text);
+      }
+      .preset-item-amount {
+        font-size: 12px;
+        color: var(--text-muted);
+        font-family: var(--font-mono);
+        margin-top: 4px;
+      }
+      .preset-item-actions {
+        display: flex;
+        gap: 8px;
+      }
+      .preset-item-btn {
+        width: 32px;
+        height: 32px;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        color: var(--text);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .preset-item-btn:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+      }
+      .preset-item-btn svg {
+        width: 16px;
+        height: 16px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 1.5;
+      }
+
+      .reminder-time {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        margin-bottom: 8px;
+      }
+      .reminder-time-label {
+        font-size: 12px;
+        font-weight: 500;
+        text-transform: uppercase;
+      }
+      .reminder-time-value {
+        font-size: 14px;
+        color: var(--primary);
+        font-family: var(--font-mono);
+        margin-top: 4px;
+        font-weight: 500;
+      }
+
+      .section-title {
+        font-size: 10px;
+        font-weight: 900;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        margin: 32px 0 16px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid var(--border);
+      }
+      .section-title:first-child {
+        margin-top: 0;
+      }
+
+      /* ===== CALENDAR NAV ===== */
+      .calendar-nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+      }
+      .calendar-nav-title {
+        font-size: 14px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .calendar-nav-btn {
+        width: 36px; height: 36px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        color: var(--text);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.15s;
+      }
+      .calendar-nav-btn:hover { border-color: var(--primary); color: var(--primary); }
+      .calendar-nav-btn:active { transform: translateY(1px); }
+      .calendar-nav-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+      /* ===== WEEKLY WIDGET ===== */
+      .weekly-widget {
+        display: flex;
+        align-items: flex-end;
+        gap: 4px;
+        height: 60px;
+        margin-bottom: 24px;
+      }
+      .weekly-bar {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+      }
+      .weekly-bar-fill {
+        width: 100%;
+        background: var(--primary);
+        transition: height 0.3s ease;
+        min-height: 2px;
+        opacity: 0.4;
+      }
+      .weekly-bar-fill.today-bar { opacity: 1; }
+      .weekly-bar-fill.goal-reached { background: var(--success); opacity: 0.8; }
+      .weekly-bar-label {
+        font-size: 9px;
+        color: var(--text-muted);
+        font-family: var(--font-mono);
+        text-transform: uppercase;
+      }
+
+      /* ===== HISTORY DELETE ===== */
+      .history-delete-btn {
+        width: 32px; height: 32px;
+        background: transparent;
+        border: 1px solid transparent;
+        color: var(--text-muted);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0.3;
+        transition: all 0.2s;
+        flex-shrink: 0;
+      }
+      .history-delete-btn:hover { color: var(--error); border-color: var(--error); opacity: 1; }
+      .history-delete-btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+      /* ===== REDUCED MOTION ===== */
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+          scroll-behavior: auto !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="gradient-bg"></div>
+
+    <div class="app-container">
+      <!-- ===== ONBOARDING ===== -->
+      <div class="screen onboarding-screen active" id="screen-onboarding">
+        <div class="vibrant-drop">
+          <div class="drop-gradient"></div>
+          <div class="drop-shine"></div>
+        </div>
+        <h1 class="onboarding-title">AquaTrack Pro</h1>
+        <p class="onboarding-subtitle">
+          Умный трекер водного баланса<br />с персональными рекомендациями
+        </p>
+        <button class="vibrant-cta" id="startButton" aria-label="Начать">
+          <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
         </button>
-      </header>
-
-      <!-- Notification Banner -->
-      <div class="notification-banner" id="notificationBanner">
-        <div class="notification-banner-title">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
-          Включите уведомления
-        </div>
-        <p class="notification-banner-text">Получайте напоминания пить воду вовремя</p>
-        <div class="notification-banner-buttons">
-          <button class="btn btn-secondary btn-full" id="dismissNotification">Позже</button>
-          <button class="btn btn-primary btn-full" id="enableNotification">Включить</button>
-        </div>
       </div>
 
-      <!-- Tip Card -->
-      <div class="tip-card" id="tipCard">
-        <div class="tip-card-header">
-          <div class="tip-card-icon">
-            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
-          </div>
-          <span class="tip-card-title">Совет дня</span>
-        </div>
-        <p class="tip-card-text" id="tipText">Загрузка совета...</p>
-      </div>
-
-      <!-- Progress Ring -->
-      <div class="progress-container">
-        <svg class="progress-ring" viewBox="0 0 290 290">
-          <circle class="progress-ring__track" cx="145" cy="145" r="115"/>
-          <circle class="progress-ring__progress" cx="145" cy="145" r="115" stroke-dasharray="722.57" stroke-dashoffset="216.77"/>
-          <circle class="progress-ring__thumb" cx="145" cy="30" r="9"/>
-        </svg>
-        <div class="progress-center">
-          <div class="progress-label">Выпито</div>
-          <div class="progress-value" id="currentAmount">0</div>
-          <div class="progress-unit" id="progressUnit">/ 2000 мл</div>
-          <div class="progress-delta" id="progressDelta">--</div>
-        </div>
-      </div>
-
-      <!-- Drink Types -->
-      <div class="card">
-        <div class="card-title">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"/></svg>
-          Тип напитка
-        </div>
-        <div class="drink-types" id="drinkTypes">
-          <button class="drink-type-btn selected" data-type="water" data-coef="1">
-            <span class="drink-type-icon">💧</span>
-            <span class="drink-type-name">Вода</span>
-            <span class="drink-type-coef">100%</span>
+      <!-- ===== TRACKING ===== -->
+      <div class="screen tracking-screen" id="screen-tracking">
+        <header class="header">
+          <h2 class="header-title" id="headerDate">Сегодня</h2>
+          <button class="icon-btn" id="settingsBtn" aria-label="Настройки">
+            <svg viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="3" />
+              <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1" />
+            </svg>
           </button>
-          <button class="drink-type-btn" data-type="tea" data-coef="0.9">
-            <span class="drink-type-icon">🍵</span>
-            <span class="drink-type-name">Чай</span>
-            <span class="drink-type-coef">90%</span>
+        </header>
+
+        <!-- Notification Banner -->
+        <div class="notification-banner" id="notificationBanner">
+          <div class="notification-banner-title">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"
+              />
+            </svg>
+            Включите уведомления
+          </div>
+          <p class="notification-banner-text">
+            Получайте напоминания пить воду вовремя
+          </p>
+          <div class="notification-banner-buttons">
+            <button class="btn btn-secondary btn-full" id="dismissNotification">
+              Позже
+            </button>
+            <button class="btn btn-primary btn-full" id="enableNotification">
+              Включить
+            </button>
+          </div>
+        </div>
+
+        <!-- Tip Card -->
+        <div class="tip-card" id="tipCard">
+          <div class="tip-card-header">
+            <div class="tip-card-icon">
+              <svg viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 16v-4M12 8h.01" />
+              </svg>
+            </div>
+            <span class="tip-card-title">Совет дня</span>
+          </div>
+          <p class="tip-card-text" id="tipText">Загрузка совета...</p>
+        </div>
+
+        <!-- Progress Ring -->
+        <div class="progress-container">
+          <svg class="progress-ring" viewBox="0 0 290 290">
+            <circle class="progress-ring__track" cx="145" cy="145" r="115" />
+            <circle
+              class="progress-ring__progress"
+              cx="145"
+              cy="145"
+              r="115"
+              stroke-dasharray="722.57"
+              stroke-dashoffset="216.77"
+            />
+            <circle class="progress-ring__thumb" cx="145" cy="30" r="9" />
+          </svg>
+          <div class="progress-center">
+            <div class="progress-label">Выпито</div>
+            <div class="progress-value" id="currentAmount">0</div>
+            <div class="progress-unit" id="progressUnit">/ 2000 мл</div>
+            <div class="progress-delta" id="progressDelta">--</div>
+          </div>
+        </div>
+
+        <!-- Weekly Stats -->
+        <div class="card">
+          <div class="card-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+            Неделя
+          </div>
+          <div class="weekly-widget" id="weeklyWidget"></div>
+        </div>
+
+        <!-- Drink Types -->
+        <div class="card">
+          <div class="card-title">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z" />
+            </svg>
+            Тип напитка
+          </div>
+          <div class="drink-types" id="drinkTypes">
+            <button
+              class="drink-type-btn selected"
+              data-type="water"
+              data-coef="1"
+            >
+              <span class="drink-type-icon">💧</span>
+              <span class="drink-type-name">Вода</span>
+              <span class="drink-type-coef">100%</span>
+            </button>
+            <button class="drink-type-btn" data-type="tea" data-coef="0.9">
+              <span class="drink-type-icon">🍵</span>
+              <span class="drink-type-name">Чай</span>
+              <span class="drink-type-coef">90%</span>
+            </button>
+            <button class="drink-type-btn" data-type="coffee" data-coef="0.8">
+              <span class="drink-type-icon">☕</span>
+              <span class="drink-type-name">Кофе</span>
+              <span class="drink-type-coef">80%</span>
+            </button>
+            <button class="drink-type-btn" data-type="juice" data-coef="0.85">
+              <span class="drink-type-icon">🧃</span>
+              <span class="drink-type-name">Сок</span>
+              <span class="drink-type-coef">85%</span>
+            </button>
+            <button class="drink-type-btn" data-type="soda" data-coef="0.7">
+              <span class="drink-type-icon">🥤</span>
+              <span class="drink-type-name">Газировка</span>
+              <span class="drink-type-coef">70%</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Quick Add -->
+        <div class="quick-add" id="quickAdd">
+          <button class="quick-add-btn" data-amount="150">
+            <div class="quick-add-icon">
+              <svg viewBox="0 0 24 24">
+                <path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z" />
+              </svg>
+            </div>
+            <span class="quick-add-label">150 мл</span>
           </button>
-          <button class="drink-type-btn" data-type="coffee" data-coef="0.8">
-            <span class="drink-type-icon">☕</span>
-            <span class="drink-type-name">Кофе</span>
-            <span class="drink-type-coef">80%</span>
+          <button class="quick-add-btn" data-amount="250">
+            <div class="quick-add-icon">
+              <svg viewBox="0 0 24 24">
+                <path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z" />
+              </svg>
+            </div>
+            <span class="quick-add-label">250 мл</span>
           </button>
-          <button class="drink-type-btn" data-type="juice" data-coef="0.85">
-            <span class="drink-type-icon">🧃</span>
-            <span class="drink-type-name">Сок</span>
-            <span class="drink-type-coef">85%</span>
+          <button class="quick-add-btn selected" data-amount="500">
+            <div class="quick-add-icon">
+              <svg viewBox="0 0 24 24">
+                <rect x="5" y="3" width="14" height="18" rx="2" />
+                <path d="M9 3v18" />
+              </svg>
+            </div>
+            <span class="quick-add-label">500 мл</span>
           </button>
-          <button class="drink-type-btn" data-type="soda" data-coef="0.7">
-            <span class="drink-type-icon">🥤</span>
-            <span class="drink-type-name">Газировка</span>
-            <span class="drink-type-coef">70%</span>
+          <button class="quick-add-btn" data-amount="750">
+            <div class="quick-add-icon">
+              <svg viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 6v6l4 2" />
+              </svg>
+            </div>
+            <span class="quick-add-label">750 мл</span>
           </button>
         </div>
+
+        <!-- Custom Amount -->
+        <div class="card">
+          <div class="card-title">Своё количество</div>
+          <div class="input-wrapper" style="display: flex; gap: 12px">
+            <input
+              type="number"
+              class="input"
+              id="customAmount"
+              placeholder="мл"
+              min="50"
+              max="2000"
+              inputmode="numeric"
+              style="flex: 1"
+            />
+            <button
+              class="btn btn-primary"
+              id="addCustomBtn"
+              style="width: 54px; padding: 0"
+            >
+              +
+            </button>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">
+              <svg viewBox="0 0 24 24">
+                <path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z" />
+              </svg>
+            </div>
+            <div class="stat-value" id="goalStat">2000</div>
+            <div class="stat-label">Цель (мл)</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">
+              <svg viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 6v6l4 2" />
+              </svg>
+            </div>
+            <div class="stat-value" id="entriesStat">0</div>
+            <div class="stat-label">Записей</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">
+              <svg viewBox="0 0 24 24">
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+              </svg>
+            </div>
+            <div class="stat-value" id="streakStat">0</div>
+            <div class="stat-label">Дней подряд</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">
+              <svg viewBox="0 0 24 24">
+                <rect x="3" y="4" width="18" height="18" rx="2" />
+                <path d="M16 2v4M8 2v4M3 10h18" />
+              </svg>
+            </div>
+            <div class="stat-value" id="avgStat">0</div>
+            <div class="stat-label">Среднее (мл)</div>
+          </div>
+        </div>
       </div>
 
-      <!-- Quick Add -->
-      <div class="quick-add" id="quickAdd">
-        <button class="quick-add-btn" data-amount="150">
-          <div class="quick-add-icon">
-            <svg viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"/></svg>
+      <!-- ===== HISTORY ===== -->
+      <div class="screen history-screen" id="screen-history">
+        <header class="header">
+          <h2 class="header-title">История</h2>
+        </header>
+
+        <div class="card">
+          <div class="card-title">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <rect x="3" y="4" width="18" height="18" rx="2" />
+              <path d="M16 2v4M8 2v4M3 10h18" />
+            </svg>
+            Календарь
           </div>
-          <span class="quick-add-label">150 мл</span>
-        </button>
-        <button class="quick-add-btn" data-amount="250">
-          <div class="quick-add-icon">
-            <svg viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"/></svg>
+          <div class="calendar-header" id="calendarHeader">
+            <div class="calendar-day-header">Пн</div>
+            <div class="calendar-day-header">Вт</div>
+            <div class="calendar-day-header">Ср</div>
+            <div class="calendar-day-header">Чт</div>
+            <div class="calendar-day-header">Пт</div>
+            <div class="calendar-day-header">Сб</div>
+            <div class="calendar-day-header">Вс</div>
           </div>
-          <span class="quick-add-label">250 мл</span>
-        </button>
-        <button class="quick-add-btn selected" data-amount="500">
-          <div class="quick-add-icon">
-            <svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v18"/></svg>
+          <div class="calendar" id="calendar"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M3 3v18h18" />
+              <path d="M18 17V9" />
+              <path d="M13 17V5" />
+              <path d="M8 17v-3" />
+            </svg>
+            По часам
           </div>
-          <span class="quick-add-label">500 мл</span>
-        </button>
-        <button class="quick-add-btn" data-amount="750">
-          <div class="quick-add-icon">
-            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          <div class="hourly-chart" id="hourlyChart"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 6v6l4 2" />
+            </svg>
+            Последние записи
           </div>
-          <span class="quick-add-label">750 мл</span>
-        </button>
+          <div class="history-list" id="historyList"></div>
+        </div>
       </div>
 
-      <!-- Custom Amount -->
-      <div class="card">
-        <div class="card-title">Своё количество</div>
-        <div class="input-wrapper" style="display: flex; gap: 12px;">
-          <input type="number" class="input" id="customAmount" placeholder="мл" min="50" max="2000" inputmode="numeric" style="flex: 1;">
-          <button class="btn btn-primary" id="addCustomBtn" style="width: 54px; padding: 0;">+</button>
-        </div>
-      </div>
+      <!-- ===== ACHIEVEMENTS ===== -->
+      <div class="screen achievements-screen" id="screen-achievements">
+        <header class="header">
+          <h2 class="header-title">Достижения</h2>
+        </header>
 
-      <!-- Stats -->
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-icon">
-            <svg viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"/></svg>
+        <div class="card">
+          <div class="card-title">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="12" cy="8" r="7" />
+              <path d="M8.21 13.89L7 23l5-3 5 3-1.21-9.12" />
+            </svg>
+            Ваши награды
           </div>
-          <div class="stat-value" id="goalStat">2000</div>
-          <div class="stat-label">Цель (мл)</div>
+          <div class="achievements-grid" id="achievementsGrid"></div>
         </div>
-        <div class="stat-card">
-          <div class="stat-icon">
-            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+      </div>
+
+      <!-- ===== SETTINGS ===== -->
+      <div class="screen settings-screen" id="screen-settings">
+        <header class="header">
+          <h2 class="header-title">Настройки</h2>
+          <button class="icon-btn" id="closeSettings" aria-label="Закрыть">
+            <svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12" /></svg>
+          </button>
+        </header>
+
+        <!-- Calculator -->
+        <div class="section-title">Расчёт нормы воды</div>
+        <div class="card">
+          <div class="input-row">
+            <div class="input-group">
+              <label class="input-label">Вес (кг)</label>
+              <input
+                type="number"
+                class="input"
+                id="calcWeight"
+                placeholder="70"
+              />
+            </div>
+            <div class="input-group">
+              <label class="input-label">Рост (см)</label>
+              <input
+                type="number"
+                class="input"
+                id="calcHeight"
+                placeholder="175"
+              />
+            </div>
           </div>
-          <div class="stat-value" id="entriesStat">0</div>
-          <div class="stat-label">Записей</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon">
-            <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          <div class="input-row">
+            <div class="input-group">
+              <label class="input-label">Возраст</label>
+              <input
+                type="number"
+                class="input"
+                id="calcAge"
+                placeholder="30"
+              />
+            </div>
+            <div class="input-group">
+              <label class="input-label">Пол</label>
+              <select class="input select" id="calcGender">
+                <option value="male">Мужской</option>
+                <option value="female">Женский</option>
+              </select>
+            </div>
           </div>
-          <div class="stat-value" id="streakStat">0</div>
-          <div class="stat-label">Дней подряд</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon">
-            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-          </div>
-          <div class="stat-value" id="avgStat">0</div>
-          <div class="stat-label">Среднее (мл)</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ===== HISTORY ===== -->
-    <div class="screen history-screen" id="screen-history">
-      <header class="header">
-        <h2 class="header-title">История</h2>
-      </header>
-
-      <div class="card">
-        <div class="card-title">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-          Календарь
-        </div>
-        <div class="calendar-header" id="calendarHeader">
-          <div class="calendar-day-header">Пн</div>
-          <div class="calendar-day-header">Вт</div>
-          <div class="calendar-day-header">Ср</div>
-          <div class="calendar-day-header">Чт</div>
-          <div class="calendar-day-header">Пт</div>
-          <div class="calendar-day-header">Сб</div>
-          <div class="calendar-day-header">Вс</div>
-        </div>
-        <div class="calendar" id="calendar"></div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
-          По часам
-        </div>
-        <div class="hourly-chart" id="hourlyChart"></div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-          Последние записи
-        </div>
-        <div class="history-list" id="historyList"></div>
-      </div>
-    </div>
-
-    <!-- ===== ACHIEVEMENTS ===== -->
-    <div class="screen achievements-screen" id="screen-achievements">
-      <header class="header">
-        <h2 class="header-title">Достижения</h2>
-      </header>
-
-      <div class="card">
-        <div class="card-title">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="7"/><path d="M8.21 13.89L7 23l5-3 5 3-1.21-9.12"/></svg>
-          Ваши награды
-        </div>
-        <div class="achievements-grid" id="achievementsGrid"></div>
-      </div>
-    </div>
-
-    <!-- ===== SETTINGS ===== -->
-    <div class="screen settings-screen" id="screen-settings">
-      <header class="header">
-        <h2 class="header-title">Настройки</h2>
-        <button class="icon-btn" id="closeSettings" aria-label="Закрыть">
-          <svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
-        </button>
-      </header>
-
-      <!-- Calculator -->
-      <div class="section-title">Расчёт нормы воды</div>
-      <div class="card">
-        <div class="input-row">
           <div class="input-group">
-            <label class="input-label">Вес (кг)</label>
-            <input type="number" class="input" id="calcWeight" placeholder="70">
-          </div>
-          <div class="input-group">
-            <label class="input-label">Рост (см)</label>
-            <input type="number" class="input" id="calcHeight" placeholder="175">
-          </div>
-        </div>
-        <div class="input-row">
-          <div class="input-group">
-            <label class="input-label">Возраст</label>
-            <input type="number" class="input" id="calcAge" placeholder="30">
-          </div>
-          <div class="input-group">
-            <label class="input-label">Пол</label>
-            <select class="input select" id="calcGender">
-              <option value="male">Мужской</option>
-              <option value="female">Женский</option>
+            <label class="input-label">Активность</label>
+            <select class="input select" id="calcActivity">
+              <option value="1.2">Минимальная</option>
+              <option value="1.375">Низкая</option>
+              <option value="1.55" selected>Средняя</option>
+              <option value="1.725">Высокая</option>
+              <option value="1.9">Экстремальная</option>
             </select>
           </div>
+          <button class="btn btn-primary btn-full" id="calculateGoal">
+            Рассчитать норму
+          </button>
         </div>
-        <div class="input-group">
-          <label class="input-label">Активность</label>
-          <select class="input select" id="calcActivity">
-            <option value="1.2">Минимальная</option>
-            <option value="1.375">Низкая</option>
-            <option value="1.55" selected>Средняя</option>
-            <option value="1.725">Высокая</option>
-            <option value="1.9">Экстремальная</option>
-          </select>
-        </div>
-        <button class="btn btn-primary btn-full" id="calculateGoal">Рассчитать норму</button>
-      </div>
 
-      <!-- Reminders -->
-      <div class="section-title">Напоминания</div>
-      <div class="card">
-        <div class="reminder-schedule" id="reminderSchedule">
-          <div class="reminder-time">
-            <div class="reminder-time-info">
-              <div class="reminder-time-icon">
-                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        <!-- Reminders -->
+        <div class="section-title">Напоминания</div>
+        <div class="card">
+          <div class="reminder-schedule" id="reminderSchedule">
+            <div class="reminder-time">
+              <div class="reminder-time-info">
+                <div class="reminder-time-icon">
+                  <svg viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M12 6v6l4 2" />
+                  </svg>
+                </div>
+                <div>
+                  <div class="reminder-time-label">Утро</div>
+                  <div class="reminder-time-value" id="morningTime">08:00</div>
+                </div>
               </div>
+              <div class="toggle active" data-period="morning">
+                <div class="toggle-knob"></div>
+              </div>
+            </div>
+            <div class="reminder-time">
+              <div class="reminder-time-info">
+                <div class="reminder-time-icon">
+                  <svg viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M12 6v6l4 2" />
+                  </svg>
+                </div>
+                <div>
+                  <div class="reminder-time-label">День</div>
+                  <div class="reminder-time-value" id="dayTime">13:00</div>
+                </div>
+              </div>
+              <div class="toggle active" data-period="day">
+                <div class="toggle-knob"></div>
+              </div>
+            </div>
+            <div class="reminder-time">
+              <div class="reminder-time-info">
+                <div class="reminder-time-icon">
+                  <svg viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M12 6v6l4 2" />
+                  </svg>
+                </div>
+                <div>
+                  <div class="reminder-time-label">Вечер</div>
+                  <div class="reminder-time-value" id="eveningTime">18:00</div>
+                </div>
+              </div>
+              <div class="toggle active" data-period="evening">
+                <div class="toggle-knob"></div>
+              </div>
+            </div>
+          </div>
+          <button
+            class="btn btn-secondary btn-full"
+            style="margin-top: 16px"
+            id="editReminders"
+          >
+            Настроить время
+          </button>
+        </div>
+
+        <!-- Do Not Disturb -->
+        <div class="section-title">Режим "Не беспокоить"</div>
+        <div class="card">
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              margin-bottom: 16px;
+            "
+          >
+            <div>
+              <div style="font-size: 15px; font-weight: 500">
+                Отключить уведомления ночью
+              </div>
+              <div
+                style="
+                  font-size: 12px;
+                  color: var(--text-muted);
+                  margin-top: 4px;
+                "
+              >
+                Уведомления не будут приходить в заданное время
+              </div>
+            </div>
+            <div class="toggle" id="dndToggle">
+              <div class="toggle-knob"></div>
+            </div>
+          </div>
+          <div
+            class="input-row"
+            id="dndTimes"
+            style="opacity: 0.5; pointer-events: none"
+          >
+            <div class="input-group">
+              <label class="input-label">С</label>
+              <input type="time" class="input" id="dndStart" value="22:00" />
+            </div>
+            <div class="input-group">
+              <label class="input-label">До</label>
+              <input type="time" class="input" id="dndEnd" value="07:00" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Daily Goal -->
+        <div class="section-title">Ежедневная цель</div>
+        <div class="card">
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+            "
+          >
+            <div>
+              <div style="font-size: 15px; font-weight: 500">Цель на день</div>
+              <div
+                style="
+                  font-size: 12px;
+                  color: var(--text-muted);
+                  margin-top: 4px;
+                "
+                id="currentGoalDisplay"
+              >
+                2000 мл
+              </div>
+            </div>
+            <button class="btn btn-secondary" id="editGoalBtn">Изменить</button>
+          </div>
+        </div>
+
+        <!-- Presets -->
+        <div class="section-title">Быстрые объёмы</div>
+        <div class="card">
+          <div class="presets-list" id="presetsList"></div>
+          <button
+            class="btn btn-secondary btn-full"
+            style="margin-top: 12px"
+            id="addPresetBtn"
+          >
+            + Добавить пресет
+          </button>
+        </div>
+
+        <!-- Data -->
+        <div class="section-title">Данные</div>
+        <div class="card">
+          <div class="preset-item" id="exportData">
+            <div class="preset-item-info">
+              <span class="preset-item-icon">📤</span>
               <div>
-                <div class="reminder-time-label">Утро</div>
-                <div class="reminder-time-value" id="morningTime">08:00</div>
+                <div class="preset-item-name">Экспорт данных</div>
+                <div class="preset-item-amount">JSON файл</div>
               </div>
             </div>
-            <div class="toggle active" data-period="morning"><div class="toggle-knob"></div></div>
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M9 18l6-6-6-6" />
+            </svg>
           </div>
-          <div class="reminder-time">
-            <div class="reminder-time-info">
-              <div class="reminder-time-icon">
-                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-              </div>
+          <div class="preset-item" id="resetData" style="margin-top: 8px">
+            <div class="preset-item-info">
+              <span class="preset-item-icon" style="color: var(--error)"
+                >🗑️</span
+              >
               <div>
-                <div class="reminder-time-label">День</div>
-                <div class="reminder-time-value" id="dayTime">13:00</div>
+                <div class="preset-item-name" style="color: var(--error)">
+                  Сбросить все данные
+                </div>
+                <div class="preset-item-amount">Безвозвратно</div>
               </div>
             </div>
-            <div class="toggle active" data-period="day"><div class="toggle-knob"></div></div>
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M9 18l6-6-6-6" />
+            </svg>
           </div>
-          <div class="reminder-time">
-            <div class="reminder-time-info">
-              <div class="reminder-time-icon">
-                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-              </div>
+        </div>
+
+        <!-- About -->
+        <div class="section-title">О приложении</div>
+        <div class="card">
+          <div class="preset-item" id="testNotification">
+            <div class="preset-item-info">
+              <span class="preset-item-icon">🔔</span>
               <div>
-                <div class="reminder-time-label">Вечер</div>
-                <div class="reminder-time-value" id="eveningTime">18:00</div>
+                <div class="preset-item-name">Тест уведомлений</div>
+                <div class="preset-item-amount">Проверить работу</div>
               </div>
             </div>
-            <div class="toggle active" data-period="evening"><div class="toggle-knob"></div></div>
+            <button
+              class="btn btn-primary"
+              style="padding: 8px 16px; font-size: 13px"
+            >
+              Тест
+            </button>
           </div>
-        </div>
-        <button class="btn btn-secondary btn-full" style="margin-top: 16px;" id="editReminders">Настроить время</button>
-      </div>
-
-      <!-- Do Not Disturb -->
-      <div class="section-title">Режим "Не беспокоить"</div>
-      <div class="card">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
-          <div>
-            <div style="font-size: 15px; font-weight: 500;">Отключить уведомления ночью</div>
-            <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Уведомления не будут приходить в заданное время</div>
-          </div>
-          <div class="toggle" id="dndToggle"><div class="toggle-knob"></div></div>
-        </div>
-        <div class="input-row" id="dndTimes" style="opacity: 0.5; pointer-events: none;">
-          <div class="input-group">
-            <label class="input-label">С</label>
-            <input type="time" class="input" id="dndStart" value="22:00">
-          </div>
-          <div class="input-group">
-            <label class="input-label">До</label>
-            <input type="time" class="input" id="dndEnd" value="07:00">
-          </div>
-        </div>
-      </div>
-
-      <!-- Daily Goal -->
-      <div class="section-title">Ежедневная цель</div>
-      <div class="card">
-        <div style="display: flex; align-items: center; justify-content: space-between;">
-          <div>
-            <div style="font-size: 15px; font-weight: 500;">Цель на день</div>
-            <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;" id="currentGoalDisplay">2000 мл</div>
-          </div>
-          <button class="btn btn-secondary" id="editGoalBtn">Изменить</button>
-        </div>
-      </div>
-
-      <!-- Presets -->
-      <div class="section-title">Быстрые объёмы</div>
-      <div class="card">
-        <div class="presets-list" id="presetsList"></div>
-        <button class="btn btn-secondary btn-full" style="margin-top: 12px;" id="addPresetBtn">+ Добавить пресет</button>
-      </div>
-
-      <!-- Data -->
-      <div class="section-title">Данные</div>
-      <div class="card">
-        <div class="preset-item" id="exportData">
-          <div class="preset-item-info">
-            <span class="preset-item-icon">📤</span>
-            <div>
-              <div class="preset-item-name">Экспорт данных</div>
-              <div class="preset-item-amount">JSON файл</div>
+          <div class="preset-item" style="margin-top: 8px">
+            <div class="preset-item-info">
+              <span class="preset-item-icon">📱</span>
+              <div>
+                <div class="preset-item-name">Версия</div>
+                <div class="preset-item-amount">3.0.0 Pro</div>
+              </div>
             </div>
           </div>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
-        </div>
-        <div class="preset-item" id="resetData" style="margin-top: 8px;">
-          <div class="preset-item-info">
-            <span class="preset-item-icon" style="color: var(--error);">🗑️</span>
-            <div>
-              <div class="preset-item-name" style="color: var(--error);">Сбросить все данные</div>
-              <div class="preset-item-amount">Безвозвратно</div>
-            </div>
-          </div>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
         </div>
       </div>
 
-      <!-- About -->
-      <div class="section-title">О приложении</div>
-      <div class="card">
-        <div class="preset-item" id="testNotification">
-          <div class="preset-item-info">
-            <span class="preset-item-icon">🔔</span>
-            <div>
-              <div class="preset-item-name">Тест уведомлений</div>
-              <div class="preset-item-amount">Проверить работу</div>
-            </div>
+      <!-- ===== BOTTOM NAV ===== -->
+      <nav class="bottom-nav" id="bottomNav" style="display: none">
+        <div class="menu-btns">
+          <button class="menu-btn active" data-screen="tracking">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z" />
+            </svg>
+            <span class="menu-btn-label">Трекер</span>
+          </button>
+          <button class="menu-btn" data-screen="history">
+            <svg viewBox="0 0 24 24">
+              <rect x="3" y="4" width="18" height="18" rx="2" />
+              <path d="M16 2v4M8 2v4M3 10h18" />
+            </svg>
+            <span class="menu-btn-label">История</span>
+          </button>
+          <div class="fab-container">
+            <button class="fab" id="quickAddFab" aria-label="Быстро добавить">
+              <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" /></svg>
+            </button>
           </div>
-          <button class="btn btn-primary" style="padding: 8px 16px; font-size: 13px;">Тест</button>
+          <button class="menu-btn" data-screen="achievements">
+            <svg viewBox="0 0 24 24">
+              <circle cx="12" cy="8" r="7" />
+              <path d="M8.21 13.89L7 23l5-3 5 3-1.21-9.12" />
+            </svg>
+            <span class="menu-btn-label">Награды</span>
+          </button>
+          <button class="menu-btn" data-screen="settings">
+            <svg viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="3" />
+              <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1" />
+            </svg>
+            <span class="menu-btn-label">Настройки</span>
+          </button>
         </div>
-        <div class="preset-item" style="margin-top: 8px;">
-          <div class="preset-item-info">
-            <span class="preset-item-icon">📱</span>
-            <div>
-              <div class="preset-item-name">Версия</div>
-              <div class="preset-item-amount">2.0.0 Pro</div>
-            </div>
+      </nav>
+
+      <!-- TOAST -->
+      <div class="toast" id="toast"></div>
+
+      <!-- MODAL -->
+      <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+          <div class="modal-header">
+            <h2 class="modal-title" id="modalTitle">Подтверждение</h2>
+            <button class="modal-close" id="modalClose">
+              <svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12" /></svg>
+            </button>
           </div>
+          <div class="modal-body" id="modalBody"></div>
+          <div class="modal-buttons" id="modalButtons"></div>
         </div>
       </div>
     </div>
 
-    <!-- ===== BOTTOM NAV ===== -->
-    <nav class="bottom-nav" id="bottomNav" style="display: none;">
-      <div class="menu-btns">
-        <button class="menu-btn active" data-screen="tracking">
-          <svg viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"/></svg>
-          <span class="menu-btn-label">Трекер</span>
-        </button>
-        <button class="menu-btn" data-screen="history">
-          <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-          <span class="menu-btn-label">История</span>
-        </button>
-        <div class="fab-container">
-          <button class="fab" id="quickAddFab" aria-label="Быстро добавить">
-            <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
-          </button>
-        </div>
-        <button class="menu-btn" data-screen="achievements">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="7"/><path d="M8.21 13.89L7 23l5-3 5 3-1.21-9.12"/></svg>
-          <span class="menu-btn-label">Награды</span>
-        </button>
-        <button class="menu-btn" data-screen="settings">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6m11-7h-6m-6 0H1"/></svg>
-          <span class="menu-btn-label">Настройки</span>
-        </button>
-      </div>
-    </nav>
+    <script>
+      // ========================================
+      // APP STATE
+      // ========================================
+      const defaultState = {
+        currentAmount: 0,
+        goalAmount: 2000,
+        entries: 0,
+        streak: 0,
+        lastEntryDate: null,
+        history: [],
+        settings: {
+          remindersEnabled: true,
+          soundEnabled: false,
+          reminderTimes: { morning: "08:00", day: "13:00", evening: "18:00" },
+          dndEnabled: false,
+          dndStart: "22:00",
+          dndEnd: "07:00",
+          selectedQuickAmount: 500,
+        },
+        profile: {
+          weight: null,
+          height: null,
+          age: null,
+          gender: "male",
+          activity: 1.55,
+        },
+        presets: [
+          { id: 1, name: "Чашка", amount: 250, icon: "☕" },
+          { id: 2, name: "Бутылка", amount: 500, icon: "🍶" },
+          { id: 3, name: "Стакан", amount: 300, icon: "🥛" },
+        ],
+        achievements: {
+          firstDrink: false,
+          sevenDays: false,
+          fourteenDays: false,
+          thirtyDays: false,
+          hundredEntries: false,
+          fiveHundredEntries: false,
+          goalTenTimes: false,
+          perfectWeek: false,
+          earlyBird: false,
+          nightOwl: false,
+          hydrated: false,
+          superhydrated: false,
+          consistent: false,
+          dedicated: false,
+          champion: false,
+        },
+        onboardingComplete: false,
+        notificationPermissionRequested: false,
+      };
 
-    <!-- TOAST -->
-    <div class="toast" id="toast"></div>
+      let state = JSON.parse(JSON.stringify(defaultState));
+    let calendarMonth = new Date().getMonth();
+    let calendarYear = new Date().getFullYear();
 
-    <!-- MODAL -->
-    <div class="modal-overlay" id="modalOverlay">
-      <div class="modal">
-        <div class="modal-header">
-          <h2 class="modal-title" id="modalTitle">Подтверждение</h2>
-          <button class="modal-close" id="modalClose">
-            <svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
-          </button>
-        </div>
-        <div class="modal-body" id="modalBody"></div>
-        <div class="modal-buttons" id="modalButtons"></div>
-      </div>
-    </div>
-  </div>
+      // ========================================
+      // ACHIEVEMENTS DATA
+      // ========================================
+      const achievementsData = [
+        {
+          id: "firstDrink",
+          name: "Первый глоток",
+          desc: "Первая запись",
+          icon: "💧",
+        },
+        { id: "sevenDays", name: "Неделя", desc: "7 дней подряд", icon: "🔥" },
+        {
+          id: "fourteenDays",
+          name: "Две недели",
+          desc: "14 дней подряд",
+          icon: "🔥🔥",
+        },
+        { id: "thirtyDays", name: "Месяц", desc: "30 дней подряд", icon: "🏆" },
+        {
+          id: "hundredEntries",
+          name: "Сотня",
+          desc: "100 записей",
+          icon: "💯",
+        },
+        {
+          id: "fiveHundredEntries",
+          name: "Полтысячи",
+          desc: "500 записей",
+          icon: "🎯",
+        },
+        {
+          id: "goalTenTimes",
+          name: "Целеустремлённый",
+          desc: "10 раз достиг цели",
+          icon: "⭐",
+        },
+        {
+          id: "perfectWeek",
+          name: "Идеальная неделя",
+          desc: "7 дней 100% цели",
+          icon: "✨",
+        },
+        { id: "earlyBird", name: "Сова", desc: "Запись до 7 утра", icon: "🌅" },
+        {
+          id: "nightOwl",
+          name: "Жаворонок",
+          desc: "Запись после 23:00",
+          icon: "🌙",
+        },
+        {
+          id: "hydrated",
+          name: "Гидратирован",
+          desc: "1000 мл за день",
+          icon: "💦",
+        },
+        {
+          id: "superhydrated",
+          name: "Супергидратация",
+          desc: "2500 мл за день",
+          icon: "🌊",
+        },
+        {
+          id: "consistent",
+          name: "Постоянный",
+          desc: "30 дней с записями",
+          icon: "📊",
+        },
+        {
+          id: "dedicated",
+          name: "Преданный",
+          desc: "90 дней в приложении",
+          icon: "💎",
+        },
+        { id: "champion", name: "Чемпион", desc: "Все достижения", icon: "👑" },
+      ];
 
-  <script>
-    // ========================================
-    // APP STATE
-    // ========================================
-    const defaultState = {
-      currentAmount: 0,
-      goalAmount: 2000,
-      entries: 0,
-      streak: 0,
-      lastEntryDate: null,
-      history: [],
-      settings: {
-        remindersEnabled: true,
-        soundEnabled: false,
-        reminderTimes: { morning: '08:00', day: '13:00', evening: '18:00' },
-        dndEnabled: false,
-        dndStart: '22:00',
-        dndEnd: '07:00',
-        selectedQuickAmount: 500
-      },
-      profile: {
-        weight: null,
-        height: null,
-        age: null,
-        gender: 'male',
-        activity: 1.55
-      },
-      presets: [
-        { id: 1, name: 'Чашка', amount: 250, icon: '☕' },
-        { id: 2, name: 'Бутылка', amount: 500, icon: '🍶' },
-        { id: 3, name: 'Стакан', amount: 300, icon: '🥛' }
-      ],
-      achievements: {
-        firstDrink: false,
-        sevenDays: false,
-        fourteenDays: false,
-        thirtyDays: false,
-        hundredEntries: false,
-        fiveHundredEntries: false,
-        goalTenTimes: false,
-        perfectWeek: false,
-        earlyBird: false,
-        nightOwl: false,
-        hydrated: false,
-        superhydrated: false,
-        consistent: false,
-        dedicated: false,
-        champion: false
-      },
-      onboardingComplete: false,
-      notificationPermissionRequested: false
-    };
+      // ========================================
+      // TIPS
+      // ========================================
+      const tips = [
+        "Выпивайте стакан воды сразу после пробуждения — это запускает метаболизм.",
+        "Держите бутылку воды на рабочем столе — так вы не забудете пить.",
+        "Установите напоминания на телефоне для регулярного питья.",
+        "Пейте воду за 30 минут до еды — это улучшает пищеварение.",
+        "Ароматизируйте воду лимоном или мятой для разнообразия.",
+        "Съедайте водянистые фрукты: арбуз, огурец, апельсин.",
+        "Пейте воду перед каждой чашкой кофе для баланса.",
+        "Используйте приложение для отслеживания прогресса.",
+        "Носите с собой многоразовую бутылку для воды.",
+        "Пейте больше воды в дни тренировок.",
+        "Тёплая вода с лимоном утром полезна для пищеварения.",
+        "Не ждите жажды — пейте профилактически.",
+        "Моча должна быть светло-жёлтой — это признак хорошей гидратации.",
+        "Головная боль часто признак обезвоживания.",
+        "Зимой нужно пить не меньше, чем летом.",
+      ];
 
-    let state = JSON.parse(JSON.stringify(defaultState));
+      // ========================================
+      // DOM ELEMENTS
+      // ========================================
+      const screens = {
+        onboarding: document.getElementById("screen-onboarding"),
+        tracking: document.getElementById("screen-tracking"),
+        history: document.getElementById("screen-history"),
+        achievements: document.getElementById("screen-achievements"),
+        settings: document.getElementById("screen-settings"),
+      };
 
-    // ========================================
-    // ACHIEVEMENTS DATA
-    // ========================================
-    const achievementsData = [
-      { id: 'firstDrink', name: 'Первый глоток', desc: 'Первая запись', icon: '💧' },
-      { id: 'sevenDays', name: 'Неделя', desc: '7 дней подряд', icon: '🔥' },
-      { id: 'fourteenDays', name: 'Две недели', desc: '14 дней подряд', icon: '🔥🔥' },
-      { id: 'thirtyDays', name: 'Месяц', desc: '30 дней подряд', icon: '🏆' },
-      { id: 'hundredEntries', name: 'Сотня', desc: '100 записей', icon: '💯' },
-      { id: 'fiveHundredEntries', name: 'Полтысячи', desc: '500 записей', icon: '🎯' },
-      { id: 'goalTenTimes', name: 'Целеустремлённый', desc: '10 раз достиг цели', icon: '⭐' },
-      { id: 'perfectWeek', name: 'Идеальная неделя', desc: '7 дней 100% цели', icon: '✨' },
-      { id: 'earlyBird', name: 'Сова', desc: 'Запись до 7 утра', icon: '🌅' },
-      { id: 'nightOwl', name: 'Жаворонок', desc: 'Запись после 23:00', icon: '🌙' },
-      { id: 'hydrated', name: 'Гидратирован', desc: '1000 мл за день', icon: '💦' },
-      { id: 'superhydrated', name: 'Супергидратация', desc: '2500 мл за день', icon: '🌊' },
-      { id: 'consistent', name: 'Постоянный', desc: '30 дней с записями', icon: '📊' },
-      { id: 'dedicated', name: 'Преданный', desc: '90 дней в приложении', icon: '💎' },
-      { id: 'champion', name: 'Чемпион', desc: 'Все достижения', icon: '👑' }
-    ];
+      const bottomNav = document.getElementById("bottomNav");
+      const toast = document.getElementById("toast");
+      const modalOverlay = document.getElementById("modalOverlay");
+      const modalTitle = document.getElementById("modalTitle");
+      const modalBody = document.getElementById("modalBody");
+      const modalButtons = document.getElementById("modalButtons");
+      const modalClose = document.getElementById("modalClose");
 
-    // ========================================
-    // TIPS
-    // ========================================
-    const tips = [
-      'Выпивайте стакан воды сразу после пробуждения — это запускает метаболизм.',
-      'Держите бутылку воды на рабочем столе — так вы не забудете пить.',
-      'Установите напоминания на телефоне для регулярного питья.',
-      'Пейте воду за 30 минут до еды — это улучшает пищеварение.',
-      'Ароматизируйте воду лимоном или мятой для разнообразия.',
-      'Съедайте водянистые фрукты: арбуз, огурец, апельсин.',
-      'Пейте воду перед каждой чашкой кофе для баланса.',
-      'Используйте приложение для отслеживания прогресса.',
-      'Носите с собой многоразовую бутылку для воды.',
-      'Пейте больше воды в дни тренировок.',
-      'Тёплая вода с лимоном утром полезна для пищеварения.',
-      'Не ждите жажды — пейте профилактически.',
-      'Моча должна быть светло-жёлтой — это признак хорошей гидратации.',
-      'Головная боль часто признак обезвоживания.',
-      'Зимой нужно пить не меньше, чем летом.'
-    ];
+      const startButton = document.getElementById("startButton");
+      const settingsBtn = document.getElementById("settingsBtn");
+      const closeSettings = document.getElementById("closeSettings");
+      const quickAddFab = document.getElementById("quickAddFab");
+      const quickAddButtons = document.querySelectorAll(".quick-add-btn");
+      const customAmountInput = document.getElementById("customAmount");
+      const addCustomBtn = document.getElementById("addCustomBtn");
+      const drinkTypeBtns = document.querySelectorAll(".drink-type-btn");
 
-    // ========================================
-    // DOM ELEMENTS
-    // ========================================
-    const screens = {
-      onboarding: document.getElementById('screen-onboarding'),
-      tracking: document.getElementById('screen-tracking'),
-      history: document.getElementById('screen-history'),
-      achievements: document.getElementById('screen-achievements'),
-      settings: document.getElementById('screen-settings')
-    };
+      const currentAmountEl = document.getElementById("currentAmount");
+      const progressUnitEl = document.getElementById("progressUnit");
+      const progressDeltaEl = document.getElementById("progressDelta");
+      const goalStatEl = document.getElementById("goalStat");
+      const entriesStatEl = document.getElementById("entriesStat");
+      const streakStatEl = document.getElementById("streakStat");
+      const avgStatEl = document.getElementById("avgStat");
+      const historyListEl = document.getElementById("historyList");
+      const navItems = document.querySelectorAll(".menu-btn");
+      const headerDateEl = document.getElementById("headerDate");
 
-    const bottomNav = document.getElementById('bottomNav');
-    const toast = document.getElementById('toast');
-    const modalOverlay = document.getElementById('modalOverlay');
-    const modalTitle = document.getElementById('modalTitle');
-    const modalBody = document.getElementById('modalBody');
-    const modalButtons = document.getElementById('modalButtons');
-    const modalClose = document.getElementById('modalClose');
+      const notificationBanner = document.getElementById("notificationBanner");
+      const enableNotificationBtn =
+        document.getElementById("enableNotification");
+      const dismissNotificationBtn = document.getElementById(
+        "dismissNotification",
+      );
+      const tipText = document.getElementById("tipText");
 
-    const startButton = document.getElementById('startButton');
-    const settingsBtn = document.getElementById('settingsBtn');
-    const closeSettings = document.getElementById('closeSettings');
-    const quickAddFab = document.getElementById('quickAddFab');
-    const quickAddButtons = document.querySelectorAll('.quick-add-btn');
-    const customAmountInput = document.getElementById('customAmount');
-    const addCustomBtn = document.getElementById('addCustomBtn');
-    const drinkTypeBtns = document.querySelectorAll('.drink-type-btn');
+      const calcWeight = document.getElementById("calcWeight");
+      const calcHeight = document.getElementById("calcHeight");
+      const calcAge = document.getElementById("calcAge");
+      const calcGender = document.getElementById("calcGender");
+      const calcActivity = document.getElementById("calcActivity");
+      const calculateGoalBtn = document.getElementById("calculateGoal");
 
-    const currentAmountEl = document.getElementById('currentAmount');
-    const progressUnitEl = document.getElementById('progressUnit');
-    const progressDeltaEl = document.getElementById('progressDelta');
-    const goalStatEl = document.getElementById('goalStat');
-    const entriesStatEl = document.getElementById('entriesStat');
-    const streakStatEl = document.getElementById('streakStat');
-    const avgStatEl = document.getElementById('avgStat');
-    const historyListEl = document.getElementById('historyList');
-    const navItems = document.querySelectorAll('.menu-btn');
-    const headerDateEl = document.getElementById('headerDate');
+      const dndToggle = document.getElementById("dndToggle");
+      const dndTimes = document.getElementById("dndTimes");
+      const dndStart = document.getElementById("dndStart");
+      const dndEnd = document.getElementById("dndEnd");
 
-    const notificationBanner = document.getElementById('notificationBanner');
-    const enableNotificationBtn = document.getElementById('enableNotification');
-    const dismissNotificationBtn = document.getElementById('dismissNotification');
-    const tipText = document.getElementById('tipText');
+      const currentGoalDisplay = document.getElementById("currentGoalDisplay");
+      const editGoalBtn = document.getElementById("editGoalBtn");
+      const presetsList = document.getElementById("presetsList");
+      const addPresetBtn = document.getElementById("addPresetBtn");
+      const resetDataBtn = document.getElementById("resetData");
+      const exportDataBtn = document.getElementById("exportData");
+      const achievementsGrid = document.getElementById("achievementsGrid");
+      const calendar = document.getElementById("calendar");
+      const hourlyChart = document.getElementById("hourlyChart");
 
-    const calcWeight = document.getElementById('calcWeight');
-    const calcHeight = document.getElementById('calcHeight');
-    const calcAge = document.getElementById('calcAge');
-    const calcGender = document.getElementById('calcGender');
-    const calcActivity = document.getElementById('calcActivity');
-    const calculateGoalBtn = document.getElementById('calculateGoal');
+      // ========================================
+      // UTILITY FUNCTIONS
+      // ========================================
+      function getTodayKey() {
+        const now = new Date();
+        return now.toISOString().split("T")[0];
+      }
 
-    const dndToggle = document.getElementById('dndToggle');
-    const dndTimes = document.getElementById('dndTimes');
-    const dndStart = document.getElementById('dndStart');
-    const dndEnd = document.getElementById('dndEnd');
+      function getFormattedDate() {
+        const now = new Date();
+        const options = { weekday: "long", day: "numeric", month: "long" };
+        return now.toLocaleDateString("ru-RU", options);
+      }
 
-    const currentGoalDisplay = document.getElementById('currentGoalDisplay');
-    const editGoalBtn = document.getElementById('editGoalBtn');
-    const presetsList = document.getElementById('presetsList');
-    const addPresetBtn = document.getElementById('addPresetBtn');
-    const resetDataBtn = document.getElementById('resetData');
-    const exportDataBtn = document.getElementById('exportData');
-    const achievementsGrid = document.getElementById('achievementsGrid');
-    const calendar = document.getElementById('calendar');
-    const hourlyChart = document.getElementById('hourlyChart');
+      function getHourKey() {
+        const now = new Date();
+        return `${getTodayKey()}-${String(now.getHours()).padStart(2, "0")}`;
+      }
 
-    // ========================================
-    // UTILITY FUNCTIONS
-    // ========================================
-    function getTodayKey() {
-      const now = new Date();
-      return now.toISOString().split('T')[0];
-    }
+      function saveData() {
+        localStorage.setItem("aquaTrackProData", JSON.stringify(state));
+      }
 
-    function getFormattedDate() {
-      const now = new Date();
-      const options = { weekday: 'long', day: 'numeric', month: 'long' };
-      return now.toLocaleDateString('ru-RU', options);
-    }
+      function loadData() {
+        const saved = localStorage.getItem("aquaTrackProData");
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved);
+            state = {
+              ...defaultState,
+              ...parsed,
+              settings: { ...defaultState.settings, ...parsed.settings },
+              achievements: {
+                ...defaultState.achievements,
+                ...parsed.achievements,
+              },
+            };
 
-    function getHourKey() {
-      const now = new Date();
-      return `${getTodayKey()}-${String(now.getHours()).padStart(2, '0')}`;
-    }
+            const today = getTodayKey();
+            const lastDate =
+              state.history.length > 0 ? state.history[0].date : null;
+            if (lastDate && lastDate !== today) {
+              checkAchievementsForDay(lastDate);
+              state.currentAmount = 0;
+            }
 
-    function saveData() {
-      localStorage.setItem('aquaTrackProData', JSON.stringify(state));
-    }
-
-    function loadData() {
-      const saved = localStorage.getItem('aquaTrackProData');
-      if (saved) {
-        try {
-          const parsed = JSON.parse(saved);
-          state = { ...defaultState, ...parsed, settings: { ...defaultState.settings, ...parsed.settings }, achievements: { ...defaultState.achievements, ...parsed.achievements } };
-          
-          const today = getTodayKey();
-          const lastDate = state.history.length > 0 ? state.history[0].date : null;
-          if (lastDate && lastDate !== today) {
-            checkAchievementsForDay(lastDate);
-            state.currentAmount = 0;
+            return true;
+          } catch (e) {
+            console.error("Error loading data:", e);
+            return false;
           }
-          
-          return true;
-        } catch (e) {
-          console.error('Error loading data:', e);
-          return false;
         }
+        return false;
       }
-      return false;
-    }
 
-    function calculateStreak() {
-      if (state.history.length === 0) return 0;
-      
-      const dates = [...new Set(state.history.map(h => h.date))].sort().reverse();
-      const today = getTodayKey();
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
-      const yesterdayKey = yesterday.toISOString().split('T')[0];
-      
-      if (dates[0] !== today && dates[0] !== yesterdayKey) return 0;
-      
-      let streak = 0;
-      let currentDate = new Date(dates[0]);
-      
-      for (const dateKey of dates) {
-        const expectedDate = new Date(currentDate);
-        expectedDate.setDate(expectedDate.getDate() - streak);
-        if (dateKey === expectedDate.toISOString().split('T')[0]) {
-          streak++;
+      function calculateStreak() {
+        if (state.history.length === 0) return 0;
+
+        const dates = [...new Set(state.history.map((h) => h.date))]
+          .sort()
+          .reverse();
+        const today = getTodayKey();
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayKey = yesterday.toISOString().split("T")[0];
+
+        if (dates[0] !== today && dates[0] !== yesterdayKey) return 0;
+
+        let streak = 0;
+        let currentDate = new Date(dates[0]);
+
+        for (const dateKey of dates) {
+          const expectedDate = new Date(currentDate);
+          expectedDate.setDate(expectedDate.getDate() - streak);
+          if (dateKey === expectedDate.toISOString().split("T")[0]) {
+            streak++;
+          } else {
+            break;
+          }
+        }
+        return streak;
+      }
+
+      function calculateAverage() {
+        if (state.history.length === 0) return 0;
+        const total = state.history.reduce((sum, h) => sum + h.amount, 0);
+        const dates = [...new Set(state.history.map((h) => h.date))];
+        return Math.round(total / dates.length);
+      }
+
+      function calculateGoal() {
+        const weight = parseFloat(calcWeight.value);
+        const height = parseFloat(calcHeight.value);
+        const age = parseFloat(calcAge.value);
+        const gender = calcGender.value;
+        const activity = parseFloat(calcActivity.value);
+
+        if (!weight || !height || !age) {
+          showToast("Заполните все поля");
+          return;
+        }
+
+        // Mifflin-St Jeor Equation for BMR
+        let bmr;
+        if (gender === "male") {
+          bmr = 10 * weight + 6.25 * height - 5 * age + 5;
         } else {
-          break;
+          bmr = 10 * weight + 6.25 * height - 5 * age - 161;
+        }
+
+        // TDEE
+        const tdee = bmr * activity;
+
+        // Water intake: ~1ml per calorie (common recommendation)
+        // Adjusted formula: 35ml per kg of body weight as base
+        let waterIntake = 35 * weight;
+
+        // Adjust for activity
+        waterIntake *= 1 + (activity - 1.2) * 0.1;
+
+        // Round to nearest 100
+        const goal = Math.round(waterIntake / 100) * 100;
+
+        state.goalAmount = Math.max(1500, Math.min(4000, goal));
+        state.profile = { weight, height, age, gender, activity };
+
+        saveData();
+        updateUI();
+        showToast(`Ваша норма: ${state.goalAmount} мл/день`);
+        showModal(
+          "Норма рассчитана!",
+          `Рекомендуемая дневная норма: <strong>${state.goalAmount} мл</strong><br><br>Основана на ваших параметрах и уровне активности.`,
+          [{ text: "Отлично", style: "btn-primary", onClick: () => {} }],
+        );
+      }
+
+      // ========================================
+      // ACHIEVEMENTS
+      // ========================================
+      function checkAchievements() {
+        const today = getTodayKey();
+        const entries = state.history.length;
+        const streak = state.streak;
+        const currentAmount = state.currentAmount;
+        const goal = state.goalAmount;
+
+        // Count days reached goal
+        const daysReachedGoal =
+          state.history.reduce((acc, h) => {
+            const dayTotal = state.history
+              .filter((x) => x.date === h.date)
+              .reduce((s, x) => s + x.amount, 0);
+            if (dayTotal >= goal) acc++;
+            return acc;
+          }, 0) /
+          state.history.filter(
+            (h, i, arr) => arr.findIndex((x) => x.date === h.date) === i,
+          ).length;
+
+        // First drink
+        if (entries >= 1) state.achievements.firstDrink = true;
+
+        // Streaks
+        if (streak >= 7) state.achievements.sevenDays = true;
+        if (streak >= 14) state.achievements.fourteenDays = true;
+        if (streak >= 30) state.achievements.thirtyDays = true;
+
+        // Entries
+        if (entries >= 100) state.achievements.hundredEntries = true;
+        if (entries >= 500) state.achievements.fiveHundredEntries = true;
+
+        // Goals
+        if (daysReachedGoal >= 10) state.achievements.goalTenTimes = true;
+
+        // Perfect week
+        const last7Days = [...new Set(state.history.map((h) => h.date))].slice(
+          0,
+          7,
+        );
+        const perfectDays = last7Days.filter((date) => {
+          const total = state.history
+            .filter((h) => h.date === date)
+            .reduce((s, h) => s + h.amount, 0);
+          return total >= goal;
+        }).length;
+        if (perfectDays === 7) state.achievements.perfectWeek = true;
+
+        // Hydration levels
+        if (currentAmount >= 1000) state.achievements.hydrated = true;
+        if (currentAmount >= 2500) state.achievements.superhydrated = true;
+
+        // Champion (all achievements)
+        const allUnlocked = Object.values(state.achievements).every(
+          (v) => v === true,
+        );
+        if (allUnlocked) state.achievements.champion = true;
+
+        saveData();
+      }
+
+      function checkAchievementsForDay(date) {
+        const dayEntries = state.history.filter((h) => h.date === date);
+        const dayTotal = dayEntries.reduce((sum, h) => sum + h.amount, 0);
+
+        if (dayTotal >= state.goalAmount) {
+          // Check perfect day
         }
       }
-      return streak;
-    }
 
-    function calculateAverage() {
-      if (state.history.length === 0) return 0;
-      const total = state.history.reduce((sum, h) => sum + h.amount, 0);
-      const dates = [...new Set(state.history.map(h => h.date))];
-      return Math.round(total / dates.length);
-    }
-
-    function calculateGoal() {
-      const weight = parseFloat(calcWeight.value);
-      const height = parseFloat(calcHeight.value);
-      const age = parseFloat(calcAge.value);
-      const gender = calcGender.value;
-      const activity = parseFloat(calcActivity.value);
-
-      if (!weight || !height || !age) {
-        showToast('Заполните все поля');
-        return;
-      }
-
-      // Mifflin-St Jeor Equation for BMR
-      let bmr;
-      if (gender === 'male') {
-        bmr = 10 * weight + 6.25 * height - 5 * age + 5;
-      } else {
-        bmr = 10 * weight + 6.25 * height - 5 * age - 161;
-      }
-
-      // TDEE
-      const tdee = bmr * activity;
-
-      // Water intake: ~1ml per calorie (common recommendation)
-      // Adjusted formula: 35ml per kg of body weight as base
-      let waterIntake = 35 * weight;
-      
-      // Adjust for activity
-      waterIntake *= (1 + (activity - 1.2) * 0.1);
-
-      // Round to nearest 100
-      const goal = Math.round(waterIntake / 100) * 100;
-
-      state.goalAmount = Math.max(1500, Math.min(4000, goal));
-      state.profile = { weight, height, age, gender, activity };
-      
-      saveData();
-      updateUI();
-      showToast(`Ваша норма: ${state.goalAmount} мл/день`);
-      showModal('Норма рассчитана!', `Рекомендуемая дневная норма: <strong>${state.goalAmount} мл</strong><br><br>Основана на ваших параметрах и уровне активности.`, [
-        { text: 'Отлично', style: 'btn-primary', onClick: () => {} }
-      ]);
-    }
-
-    // ========================================
-    // ACHIEVEMENTS
-    // ========================================
-    function checkAchievements() {
-      const today = getTodayKey();
-      const entries = state.history.length;
-      const streak = state.streak;
-      const currentAmount = state.currentAmount;
-      const goal = state.goalAmount;
-
-      // Count days reached goal
-      const daysReachedGoal = state.history.reduce((acc, h) => {
-        const dayTotal = state.history.filter(x => x.date === h.date).reduce((s, x) => s + x.amount, 0);
-        if (dayTotal >= goal) acc++;
-        return acc;
-      }, 0) / (state.history.filter((h, i, arr) => arr.findIndex(x => x.date === h.date) === i).length);
-
-      // First drink
-      if (entries >= 1) state.achievements.firstDrink = true;
-
-      // Streaks
-      if (streak >= 7) state.achievements.sevenDays = true;
-      if (streak >= 14) state.achievements.fourteenDays = true;
-      if (streak >= 30) state.achievements.thirtyDays = true;
-
-      // Entries
-      if (entries >= 100) state.achievements.hundredEntries = true;
-      if (entries >= 500) state.achievements.fiveHundredEntries = true;
-
-      // Goals
-      if (daysReachedGoal >= 10) state.achievements.goalTenTimes = true;
-
-      // Perfect week
-      const last7Days = [...new Set(state.history.map(h => h.date))].slice(0, 7);
-      const perfectDays = last7Days.filter(date => {
-        const total = state.history.filter(h => h.date === date).reduce((s, h) => s + h.amount, 0);
-        return total >= goal;
-      }).length;
-      if (perfectDays === 7) state.achievements.perfectWeek = true;
-
-      // Hydration levels
-      if (currentAmount >= 1000) state.achievements.hydrated = true;
-      if (currentAmount >= 2500) state.achievements.superhydrated = true;
-
-      // Champion (all achievements)
-      const allUnlocked = Object.values(state.achievements).every(v => v === true);
-      if (allUnlocked) state.achievements.champion = true;
-
-      saveData();
-    }
-
-    function checkAchievementsForDay(date) {
-      const dayEntries = state.history.filter(h => h.date === date);
-      const dayTotal = dayEntries.reduce((sum, h) => sum + h.amount, 0);
-      
-      if (dayTotal >= state.goalAmount) {
-        // Check perfect day
-      }
-    }
-
-    function renderAchievements() {
-      achievementsGrid.innerHTML = achievementsData.map(ach => {
-        const unlocked = state.achievements[ach.id];
-        return `
-          <div class="achievement ${unlocked ? 'unlocked' : 'locked'}">
+      function renderAchievements() {
+        achievementsGrid.innerHTML = achievementsData
+          .map((ach) => {
+            const unlocked = state.achievements[ach.id];
+            return `
+          <div class="achievement ${unlocked ? "unlocked" : "locked"}">
             <div class="achievement-icon">${ach.icon}</div>
             <div class="achievement-name">${ach.name}</div>
             <div class="achievement-desc">${ach.desc}</div>
           </div>
         `;
-      }).join('');
-    }
-
-    function showAchievementNotification(achievementId) {
-      const ach = achievementsData.find(a => a.id === achievementId);
-      if (!ach) return;
-
-      // Confetti
-      for (let i = 0; i < 30; i++) {
-        setTimeout(() => createConfetti(), i * 50);
+          })
+          .join("");
       }
 
-      showToast(`🏆 Достижение: ${ach.name}!`);
-    }
+      function showAchievementNotification(achievementId) {
+        const ach = achievementsData.find((a) => a.id === achievementId);
+        if (!ach) return;
 
-    function createConfetti() {
-      const confetti = document.createElement('div');
-      confetti.className = 'confetti';
-      confetti.style.left = Math.random() * 100 + 'vw';
-      confetti.style.background = `linear-gradient(135deg, hsl(${Math.random() * 360}, 70%, 60%), hsl(${Math.random() * 360}, 70%, 50%))`;
-      confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
-      document.body.appendChild(confetti);
-      setTimeout(() => confetti.remove(), 4000);
-    }
+        // Confetti
+        for (let i = 0; i < 30; i++) {
+          setTimeout(() => createConfetti(), i * 50);
+        }
 
-    // ========================================
-    // NAVIGATION
-    // ========================================
-    function switchScreen(screenName) {
-      Object.values(screens).forEach(s => s.classList.remove('active'));
-      if (screens[screenName]) screens[screenName].classList.add('active');
-      
-      navItems.forEach(item => {
-        item.classList.toggle('active', item.dataset.screen === screenName);
-      });
-      
-      bottomNav.style.display = state.onboardingComplete ? 'flex' : 'none';
-      
-      if (screenName === 'history') {
-        renderCalendar();
-        renderHourlyChart();
-        renderHistoryList();
-      }
-      
-      if (screenName === 'achievements') {
-        renderAchievements();
-      }
-      
-      if (screenName === 'settings') {
-        renderPresets();
-      }
-    }
-
-    // ========================================
-    // PROGRESS RING
-    // ========================================
-    function updateProgressRing() {
-      const circumference = 2 * Math.PI * 115;
-      const percentage = Math.min(state.currentAmount / state.goalAmount, 1);
-      const offset = circumference * (1 - percentage);
-      
-      const progressCircle = document.querySelector('.progress-ring__progress');
-      const thumbCircle = document.querySelector('.progress-ring__thumb');
-      
-      if (progressCircle) {
-        progressCircle.style.strokeDasharray = circumference;
-        progressCircle.style.strokeDashoffset = offset;
-      }
-      
-      if (thumbCircle) {
-        const thumbAngle = (percentage * 360 - 90) * (Math.PI / 180);
-        const x = 145 + 115 * Math.cos(thumbAngle);
-        const y = 145 + 115 * Math.sin(thumbAngle);
-        thumbCircle.setAttribute('cx', x);
-        thumbCircle.setAttribute('cy', y);
-      }
-    }
-
-    // ========================================
-    // ADD WATER
-    // ========================================
-    function addWater(amount, drinkType = 'water', drinkCoef = 1) {
-      if (amount < 50 || amount > 2000) {
-        showToast('Введите от 50 до 2000 мл');
-        return;
+        showToast(`🏆 Достижение: ${ach.name}!`);
       }
 
-      const now = new Date();
-      const timeStr = now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-      const dateKey = getTodayKey();
-      const effectiveAmount = Math.round(amount * drinkCoef);
+      function createConfetti() {
+        const confetti = document.createElement("div");
+        confetti.className = "confetti";
+        confetti.style.left = Math.random() * 100 + "vw";
+        confetti.style.background = `linear-gradient(135deg, hsl(${Math.random() * 360}, 70%, 60%), hsl(${Math.random() * 360}, 70%, 50%))`;
+        confetti.style.animationDuration = Math.random() * 2 + 2 + "s";
+        document.body.appendChild(confetti);
+        setTimeout(() => confetti.remove(), 4000);
+      }
 
-      state.currentAmount += effectiveAmount;
-      state.entries++;
-      state.history.unshift({
-        id: Date.now(),
-        type: drinkType,
-        title: getDrinkName(drinkType),
-        amount: effectiveAmount,
-        rawAmount: amount,
-        time: timeStr,
-        date: dateKey,
-        hour: getHourKey(),
-        dateTime: now.toISOString()
-      });
+      // ========================================
+      // NAVIGATION
+      // ========================================
+      function switchScreen(screenName) {
+        Object.values(screens).forEach((s) => s.classList.remove("active"));
+        if (screens[screenName]) screens[screenName].classList.add("active");
 
-      // Check for new day streak
-      if (state.lastEntryDate !== dateKey) {
-        if (state.lastEntryDate) {
-          const lastDate = new Date(state.lastEntryDate);
-          const today = new Date(dateKey);
-          const diff = Math.floor((today - lastDate) / (1000 * 60 * 60 * 24));
-          if (diff > 1) {
-            state.streak = 1;
+        navItems.forEach((item) => {
+          item.classList.toggle("active", item.dataset.screen === screenName);
+        });
+
+        bottomNav.style.display = state.onboardingComplete ? "flex" : "none";
+
+        if (screenName === "history") {
+          renderCalendar();
+          renderHourlyChart();
+          renderHistoryList();
+        }
+
+        if (screenName === "achievements") {
+          renderAchievements();
+        }
+
+        if (screenName === "settings") {
+          renderPresets();
+        }
+      }
+
+      // ========================================
+      // PROGRESS RING
+      // ========================================
+      function updateProgressRing() {
+        const circumference = 2 * Math.PI * 115;
+        const percentage = Math.min(state.currentAmount / state.goalAmount, 1);
+        const offset = circumference * (1 - percentage);
+
+        const progressCircle = document.querySelector(
+          ".progress-ring__progress",
+        );
+        const thumbCircle = document.querySelector(".progress-ring__thumb");
+
+        if (progressCircle) {
+          progressCircle.style.strokeDasharray = circumference;
+          progressCircle.style.strokeDashoffset = offset;
+        }
+
+        if (thumbCircle) {
+          const thumbAngle = (percentage * 360 - 90) * (Math.PI / 180);
+          const x = 145 + 115 * Math.cos(thumbAngle);
+          const y = 145 + 115 * Math.sin(thumbAngle);
+          thumbCircle.setAttribute("cx", x);
+          thumbCircle.setAttribute("cy", y);
+        }
+      }
+
+      // ========================================
+      // ADD WATER
+      // ========================================
+      function addWater(amount, drinkType = "water", drinkCoef = 1) {
+        if (amount < 50 || amount > 2000) {
+          showToast("Введите от 50 до 2000 мл");
+          return;
+        }
+
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString("ru-RU", {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+        const dateKey = getTodayKey();
+        const effectiveAmount = Math.round(amount * drinkCoef);
+
+        state.currentAmount += effectiveAmount;
+      if (navigator.vibrate) navigator.vibrate(50);
+        state.entries++;
+        state.history.unshift({
+          id: Date.now(),
+          type: drinkType,
+          title: getDrinkName(drinkType),
+          amount: effectiveAmount,
+          rawAmount: amount,
+          time: timeStr,
+          date: dateKey,
+          hour: getHourKey(),
+          dateTime: now.toISOString(),
+        });
+
+        // Check for new day streak
+        if (state.lastEntryDate !== dateKey) {
+          if (state.lastEntryDate) {
+            const lastDate = new Date(state.lastEntryDate);
+            const today = new Date(dateKey);
+            const diff = Math.floor((today - lastDate) / (1000 * 60 * 60 * 24));
+            if (diff > 1) {
+              state.streak = 1;
+            } else {
+              state.streak = calculateStreak();
+            }
           } else {
-            state.streak = calculateStreak();
+            state.streak = 1;
           }
-        } else {
-          state.streak = 1;
+          state.lastEntryDate = dateKey;
         }
-        state.lastEntryDate = dateKey;
+
+        // Check achievements
+        const prevAchievements = { ...state.achievements };
+        checkAchievements();
+
+        // Notify new achievements
+        Object.keys(state.achievements).forEach((key) => {
+          if (state.achievements[key] && !prevAchievements[key]) {
+            showAchievementNotification(key);
+          }
+        });
+
+        // Check goal reached
+        if (
+          state.currentAmount >= state.goalAmount &&
+          state.currentAmount - effectiveAmount < state.goalAmount
+        ) {
+          createConfetti();
+          showToast("🎉 Цель достигнута!");
+        }
+
+        saveData();
+        updateUI();
+        updateProgressRing();
       }
 
-      // Check achievements
-      const prevAchievements = { ...state.achievements };
-      checkAchievements();
-      
-      // Notify new achievements
-      Object.keys(state.achievements).forEach(key => {
-        if (state.achievements[key] && !prevAchievements[key]) {
-          showAchievementNotification(key);
-        }
-      });
-
-      // Check goal reached
-      if (state.currentAmount >= state.goalAmount && state.currentAmount - effectiveAmount < state.goalAmount) {
-        createConfetti();
-        showToast('🎉 Цель достигнута!');
+      function getDrinkName(type) {
+        const names = {
+          water: "Вода",
+          tea: "Чай",
+          coffee: "Кофе",
+          juice: "Сок",
+          soda: "Газировка",
+        };
+        return names[type] || "Вода";
       }
 
-      saveData();
-      updateUI();
-      updateProgressRing();
-    }
-
-    function getDrinkName(type) {
-      const names = { water: 'Вода', tea: 'Чай', coffee: 'Кофе', juice: 'Сок', soda: 'Газировка' };
-      return names[type] || 'Вода';
-    }
-
-    // ========================================
-    // UPDATE UI
-    // ========================================
-    function updateUI() {
-      currentAmountEl.textContent = state.currentAmount;
-      progressUnitEl.textContent = `/ ${state.goalAmount} мл`;
-      goalStatEl.textContent = state.goalAmount;
-      entriesStatEl.textContent = state.entries;
-      streakStatEl.textContent = state.streak;
-      avgStatEl.textContent = calculateAverage();
-      currentGoalDisplay.textContent = `${state.goalAmount} мл`;
-
-      // Delta
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
-      const yesterdayKey = yesterday.toISOString().split('T')[0];
-      const yesterdayTotal = state.history.filter(h => h.date === yesterdayKey).reduce((sum, h) => sum + h.amount, 0);
-
-      const delta = state.currentAmount - yesterdayTotal;
-      if (yesterdayTotal > 0 || delta !== 0) {
-        progressDeltaEl.textContent = `${delta >= 0 ? '+' : ''}${delta} мл вчера`;
-        progressDeltaEl.className = 'progress-delta ' + (delta >= 0 ? 'positive' : 'negative');
+      // ========================================
+      // UPDATE UI
+      // ========================================
+      function updateUI() {
+        // Animate counter
+      const target = state.currentAmount;
+      const current = parseInt(currentAmountEl.textContent) || 0;
+      if (current !== target) {
+        const diff = target - current;
+        const steps = Math.min(Math.abs(diff), 20);
+        const stepSize = diff / steps;
+        let step = 0;
+        const counterInterval = setInterval(() => {
+          step++;
+          const val = Math.round(current + stepSize * step);
+          currentAmountEl.textContent = step >= steps ? target : val;
+          if (step >= steps) clearInterval(counterInterval);
+        }, 30);
       } else {
-        progressDeltaEl.textContent = '--';
-        progressDeltaEl.className = 'progress-delta';
+        currentAmountEl.textContent = target;
       }
+        progressUnitEl.textContent = `/ ${state.goalAmount} мл`;
+        goalStatEl.textContent = state.goalAmount;
+        entriesStatEl.textContent = state.entries;
+        streakStatEl.textContent = state.streak;
+        avgStatEl.textContent = calculateAverage();
+        currentGoalDisplay.textContent = `${state.goalAmount} мл`;
 
-      // Update quick add selection
-      quickAddButtons.forEach(btn => {
-        btn.classList.toggle('selected', parseInt(btn.dataset.amount) === state.settings.selectedQuickAmount);
-      });
+        // Delta
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayKey = yesterday.toISOString().split("T")[0];
+        const yesterdayTotal = state.history
+          .filter((h) => h.date === yesterdayKey)
+          .reduce((sum, h) => sum + h.amount, 0);
 
-      // Tip of the day
-      const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
-      tipText.textContent = tips[dayOfYear % tips.length];
+        const delta = state.currentAmount - yesterdayTotal;
+        if (yesterdayTotal > 0 || delta !== 0) {
+          progressDeltaEl.textContent = `${delta >= 0 ? "+" : ""}${delta} мл вчера`;
+          progressDeltaEl.className =
+            "progress-delta " + (delta >= 0 ? "positive" : "negative");
+        } else {
+          progressDeltaEl.textContent = "--";
+          progressDeltaEl.className = "progress-delta";
+        }
+
+        // Update quick add selection
+        quickAddButtons.forEach((btn) => {
+          btn.classList.toggle(
+            "selected",
+            parseInt(btn.dataset.amount) === state.settings.selectedQuickAmount,
+          );
+        });
+
+        // Tip of the day
+        const dayOfYear = Math.floor(
+          (new Date() - new Date(new Date().getFullYear(), 0, 0)) /
+            (1000 * 60 * 60 * 24),
+        );
+        tipText.textContent = tips[dayOfYear % tips.length];
+
+        // Weekly widget
+      renderWeeklyWidget();
 
       // Notification banner
-      if (state.onboardingComplete && !state.notificationPermissionRequested && Notification.permission === 'default') {
-        notificationBanner.classList.add('show');
+        if (
+          state.onboardingComplete &&
+          !state.notificationPermissionRequested &&
+          Notification.permission === "default"
+        ) {
+          notificationBanner.classList.add("show");
+        }
       }
-    }
 
-    // ========================================
-    // CALENDAR
-    // ========================================
-    function renderCalendar() {
+      // ========================================
+      // CALENDAR
+      // ========================================
+      function renderWeeklyWidget() {
+      const widget = document.getElementById('weeklyWidget');
+      if (!widget) return;
       const today = new Date();
-      const year = today.getFullYear();
-      const month = today.getMonth();
-      
-      const firstDay = new Date(year, month, 1);
-      const lastDay = new Date(year, month + 1, 0);
-      const startDay = (firstDay.getDay() || 7) - 1; // Monday = 0
-      const totalDays = lastDay.getDate();
-
+      const todayKey = getTodayKey();
+      const dayNames = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
       let html = '';
       
-      // Empty days before first
-      for (let i = 0; i < startDay; i++) {
-        html += '<div class="calendar-day empty"></div>';
-      }
-      
-      // Days
-      for (let day = 1; day <= totalDays; day++) {
-        const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(today);
+        d.setDate(d.getDate() - i);
+        const dateKey = d.toISOString().split('T')[0];
         const dayEntries = state.history.filter(h => h.date === dateKey);
         const total = dayEntries.reduce((sum, h) => sum + h.amount, 0);
-        const percentage = Math.round((total / state.goalAmount) * 100);
+        const pct = Math.min((total / state.goalAmount) * 100, 100);
+        const isToday = dateKey === todayKey;
+        const goalReached = total >= state.goalAmount;
         
-        let className = 'calendar-day';
-        if (dateKey === getTodayKey()) className += ' today';
-        if (percentage >= 100) className += ' success';
-        else if (percentage >= 50) className += ' partial';
-        else if (percentage > 0) className += ' missed';
-        
-        html += `
-          <div class="${className}">
-            ${day}
-            ${percentage > 0 ? `<span class="percentage">${Math.min(percentage, 999)}%</span>` : ''}
-          </div>
-        `;
+        html += `<div class="weekly-bar">
+          <div class="weekly-bar-fill ${isToday ? 'today-bar' : ''} ${goalReached ? 'goal-reached' : ''}" style="height: ${Math.max(pct, 3)}%"></div>
+          <span class="weekly-bar-label">${dayNames[d.getDay()]}</span>
+        </div>`;
       }
-      
-      calendar.innerHTML = html;
+      widget.innerHTML = html;
     }
 
-    // ========================================
-    // HOURLY CHART
-    // ========================================
-    function renderHourlyChart() {
-      const today = getTodayKey();
-      const hours = [];
-      
-      for (let i = 0; i < 24; i++) {
-        const hourKey = `${today}-${String(i).padStart(2, '0')}`;
-        const hourEntries = state.history.filter(h => h.hour === hourKey);
-        const total = hourEntries.reduce((sum, h) => sum + h.amount, 0);
-        hours.push({ hour: i, value: total });
+    function renderCalendar() {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = today.getMonth();
+
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+        const startDay = (firstDay.getDay() || 7) - 1; // Monday = 0
+        const totalDays = lastDay.getDate();
+
+        let html = "";
+
+        // Empty days before first
+        for (let i = 0; i < startDay; i++) {
+          html += '<div class="calendar-day empty"></div>';
+        }
+
+        // Days
+        for (let day = 1; day <= totalDays; day++) {
+          const dateKey = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+          const dayEntries = state.history.filter((h) => h.date === dateKey);
+          const total = dayEntries.reduce((sum, h) => sum + h.amount, 0);
+          const percentage = Math.round((total / state.goalAmount) * 100);
+
+          let className = "calendar-day";
+          if (dateKey === getTodayKey()) className += " today";
+          if (percentage >= 100) className += " success";
+          else if (percentage >= 50) className += " partial";
+          else if (percentage > 0) className += " missed";
+
+          html += `
+          <div class="${className}">
+            ${day}
+            ${percentage > 0 ? `<span class="percentage">${Math.min(percentage, 999)}%</span>` : ""}
+          </div>
+        `;
+        }
+
+        calendar.innerHTML = html;
       }
-      
-      const maxValue = Math.max(...hours.map(h => h.value), 100);
-      
-      hourlyChart.innerHTML = hours.map(h => `
+
+      // ========================================
+      // HOURLY CHART
+      // ========================================
+      function renderHourlyChart() {
+        const today = getTodayKey();
+        const hours = [];
+
+        for (let i = 0; i < 24; i++) {
+          const hourKey = `${today}-${String(i).padStart(2, "0")}`;
+          const hourEntries = state.history.filter((h) => h.hour === hourKey);
+          const total = hourEntries.reduce((sum, h) => sum + h.amount, 0);
+          hours.push({ hour: i, value: total });
+        }
+
+        const maxValue = Math.max(...hours.map((h) => h.value), 100);
+
+        hourlyChart.innerHTML = hours
+          .map(
+            (h) => `
         <div class="hour-bar">
           <div class="hour-bar-fill" style="height: ${(h.value / maxValue) * 100}px;"></div>
           <span class="hour-bar-label">${h.hour}:00</span>
         </div>
-      `).join('');
-    }
+      `,
+          )
+          .join("");
+      }
 
-    // ========================================
-    // HISTORY LIST
-    // ========================================
-    function renderHistoryList() {
-      if (state.history.length === 0) {
-        historyListEl.innerHTML = `
+      // ========================================
+      // HISTORY LIST
+      // ========================================
+      function renderHistoryList() {
+        if (state.history.length === 0) {
+          historyListEl.innerHTML = `
           <div class="empty-state">
             <div class="empty-state-icon">
               <svg viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"/></svg>
@@ -1703,33 +2702,66 @@
             <div class="empty-state-text">Добавьте первую запись</div>
           </div>
         `;
-        return;
-      }
+          return;
+        }
 
-      historyListEl.innerHTML = state.history.slice(0, 50).map(item => `
+        historyListEl.innerHTML = state.history
+          .slice(0, 50)
+          .map(
+            (item) => `
         <div class="preset-item" style="padding: 12px 14px;">
           <div class="preset-item-info">
             <span class="preset-item-icon">${getDrinkIcon(item.type)}</span>
             <div>
               <div class="preset-item-name">${item.title}</div>
-              <div class="preset-item-amount">${item.date === getTodayKey() ? 'Сегодня' : new Date(item.date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })}, ${item.time}</div>
+              <div class="preset-item-amount">${item.date === getTodayKey() ? "Сегодня" : new Date(item.date).toLocaleDateString("ru-RU", { day: "numeric", month: "short" })}, ${item.time}</div>
             </div>
           </div>
-          <div class="badge badge-success">+${item.amount} мл</div>
+          <div class="badge badge-success">+${item.amount} </div>
+          <button class="history-delete-btn" onclick="deleteEntry(${item.id})" title="Удалить"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></button мл</div>
         </div>
-      `).join('');
-    }
+      `,
+          )
+          .join("");
+      }
+
+      window.deleteEntry = function(id) {
+      const idx = state.history.findIndex(h => h.id === id);
+      if (idx !== -1) {
+        const entry = state.history[idx];
+        if (entry.date === getTodayKey()) {
+          state.currentAmount = Math.max(0, state.currentAmount - entry.amount);
+          state.entries = Math.max(0, state.entries - 1);
+        }
+        state.history.splice(idx, 1);
+        state.streak = calculateStreak();
+        saveData();
+        updateUI();
+        updateProgressRing();
+        renderHistoryList();
+        showToast('Запись удалена');
+      }
+    };
 
     function getDrinkIcon(type) {
-      const icons = { water: '💧', tea: '🍵', coffee: '☕', juice: '🧃', soda: '🥤', custom: '💦' };
-      return icons[type] || '💧';
-    }
+        const icons = {
+          water: "💧",
+          tea: "🍵",
+          coffee: "☕",
+          juice: "🧃",
+          soda: "🥤",
+          custom: "💦",
+        };
+        return icons[type] || "💧";
+      }
 
-    // ========================================
-    // PRESETS
-    // ========================================
-    function renderPresets() {
-      presetsList.innerHTML = state.presets.map(preset => `
+      // ========================================
+      // PRESETS
+      // ========================================
+      function renderPresets() {
+        presetsList.innerHTML = state.presets
+          .map(
+            (preset) => `
         <div class="preset-item">
           <div class="preset-item-info">
             <span class="preset-item-icon">${preset.icon}</span>
@@ -1747,446 +2779,467 @@
             </button>
           </div>
         </div>
-      `).join('');
-    }
-
-    window.usePreset = function(id) {
-      const preset = state.presets.find(p => p.id === id);
-      if (preset) {
-        addWater(preset.amount);
-        showToast(`+${preset.amount} мл (${preset.name})`);
+      `,
+          )
+          .join("");
       }
-    };
 
-    window.deletePreset = function(id) {
-      state.presets = state.presets.filter(p => p.id !== id);
-      saveData();
-      renderPresets();
-      showToast('Пресет удалён');
-    };
+      window.usePreset = function (id) {
+        const preset = state.presets.find((p) => p.id === id);
+        if (preset) {
+          addWater(preset.amount);
+          showToast(`+${preset.amount} мл (${preset.name})`);
+        }
+      };
 
-    // ========================================
-    // TOAST
-    // ========================================
-    function showToast(message) {
-      toast.textContent = message;
-      toast.classList.add('show');
-      setTimeout(() => toast.classList.remove('show'), 2500);
-    }
+      window.deletePreset = function (id) {
+        state.presets = state.presets.filter((p) => p.id !== id);
+        saveData();
+        renderPresets();
+        showToast("Пресет удалён");
+      };
 
-    // ========================================
-    // MODAL
-    // ========================================
-    function showModal(title, bodyHtml, buttons) {
-      modalTitle.textContent = title;
-      modalBody.innerHTML = bodyHtml;
-      modalButtons.innerHTML = '';
-      
-      buttons.forEach(btn => {
-        const button = document.createElement('button');
-        button.className = `btn ${btn.style || 'btn-secondary'} btn-full`;
-        button.textContent = btn.text;
-        button.onclick = () => {
-          modalOverlay.classList.remove('active');
-          if (btn.onClick) btn.onClick();
-        };
-        modalButtons.appendChild(button);
-      });
-      
-      modalOverlay.classList.add('active');
-    }
+      // ========================================
+      // TOAST
+      // ========================================
+      function showToast(message) {
+        toast.textContent = message;
+        toast.classList.add("show");
+        setTimeout(() => toast.classList.remove("show"), 2500);
+      }
 
-    // ========================================
-    // NOTIFICATIONS
-    // ========================================
-    let reminderIntervals = [];
-    let serviceWorkerRegistration = null;
+      // ========================================
+      // MODAL
+      // ========================================
+      function showModal(title, bodyHtml, buttons) {
+        modalTitle.textContent = title;
+        modalBody.innerHTML = bodyHtml;
+        modalButtons.innerHTML = "";
 
-    async function registerServiceWorker() {
-      if ('serviceWorker' in navigator) {
-        try {
-          const registration = await navigator.serviceWorker.register('./sw.js');
-          serviceWorkerRegistration = registration;
-          console.log('Service Worker registered:', registration.scope);
-          
-          // Request notification permission after SW registration
-          if (Notification.permission === 'default') {
-            // Will show banner
+        buttons.forEach((btn) => {
+          const button = document.createElement("button");
+          button.className = `btn ${btn.style || "btn-secondary"} btn-full`;
+          button.textContent = btn.text;
+          button.onclick = () => {
+            modalOverlay.classList.remove("active");
+            if (btn.onClick) btn.onClick();
+          };
+          modalButtons.appendChild(button);
+        });
+
+        modalOverlay.classList.add("active");
+      }
+
+      // ========================================
+      // NOTIFICATIONS
+      // ========================================
+      let reminderIntervals = [];
+      let serviceWorkerRegistration = null;
+
+      async function registerServiceWorker() {
+        if ("serviceWorker" in navigator) {
+          try {
+            const registration =
+              await navigator.serviceWorker.register("./sw.js");
+            serviceWorkerRegistration = registration;
+            console.log("Service Worker registered:", registration.scope);
+
+            // Request notification permission after SW registration
+            if (Notification.permission === "default") {
+              // Will show banner
+            }
+          } catch (error) {
+            console.error("SW registration failed:", error);
           }
-        } catch (error) {
-          console.error('SW registration failed:', error);
         }
       }
-    }
 
-    async function requestNotificationPermission() {
-      if (!('Notification' in window)) {
-        showToast('Уведомления не поддерживаются');
-        return;
+      async function requestNotificationPermission() {
+        if (!("Notification" in window)) {
+          showToast("Уведомления не поддерживаются");
+          return;
+        }
+
+        const permission = await Notification.requestPermission();
+        state.notificationPermissionRequested = true;
+
+        if (permission === "granted") {
+          showToast("Уведомления включены!");
+
+          // Register for push notifications
+          await registerPushNotifications();
+
+          scheduleReminders();
+          // Send test notification
+          sendPushNotification(
+            "🎉 AquaTrack",
+            "Уведомления работают! Не забывайте пить воду 💧",
+            true,
+          );
+        }
+
+        saveData();
+        notificationBanner.classList.remove("show");
       }
 
-      const permission = await Notification.requestPermission();
-      state.notificationPermissionRequested = true;
+      async function registerPushNotifications() {
+        if (!serviceWorkerRegistration) {
+          await registerServiceWorker();
+        }
 
-      if (permission === 'granted') {
-        showToast('Уведомления включены!');
-        
-        // Register for push notifications
-        await registerPushNotifications();
-        
-        scheduleReminders();
-        // Send test notification
-        sendPushNotification('🎉 AquaTrack', 'Уведомления работают! Не забывайте пить воду 💧', true);
+        try {
+          // For real push, you'd need a server and VAPID keys
+          // This is a demo using local notifications via SW
+          console.log("Push notifications ready");
+        } catch (error) {
+          console.error("Push registration failed:", error);
+        }
       }
 
-      saveData();
-      notificationBanner.classList.remove('show');
-    }
+      function sendPushNotification(title, body, withSound = false) {
+        if (Notification.permission !== "granted") return;
 
-    async function registerPushNotifications() {
-      if (!serviceWorkerRegistration) {
-        await registerServiceWorker();
+        // Check DND
+        if (isDndActive()) return;
+
+        // Send via Service Worker for full functionality
+        if (serviceWorkerRegistration && serviceWorkerRegistration.active) {
+          serviceWorkerRegistration.active.postMessage({
+            type: "SEND_PUSH",
+            title: title,
+            body: body,
+            sound: withSound,
+          });
+        } else {
+          // Fallback to regular notification
+          sendLocalNotification(title, body, withSound);
+        }
       }
 
-      try {
-        // For real push, you'd need a server and VAPID keys
-        // This is a demo using local notifications via SW
-        console.log('Push notifications ready');
-      } catch (error) {
-        console.error('Push registration failed:', error);
-      }
-    }
+      function sendLocalNotification(title, body, withSound = false) {
+        if (Notification.permission !== "granted") return;
 
-    function sendPushNotification(title, body, withSound = false) {
-      if (Notification.permission !== 'granted') return;
+        // Check DND
+        if (isDndActive()) return;
 
-      // Check DND
-      if (isDndActive()) return;
+        // Play sound if enabled
+        if (withSound && state.settings.soundEnabled) {
+          playNotificationSound();
+        }
 
-      // Send via Service Worker for full functionality
-      if (serviceWorkerRegistration && serviceWorkerRegistration.active) {
-        serviceWorkerRegistration.active.postMessage({
-          type: 'SEND_PUSH',
-          title: title,
+        // Show notification
+        new Notification(title, {
           body: body,
-          sound: withSound
+          icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="%2300E5FF" d="M256 0C256 0 64 272 64 368a192 192 0 00384 0c0-96-192-368-192-368z"/></svg>',
+          badge:
+            'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="%2300E5FF" d="M256 0C256 0 64 272 64 368a192 192 0 00384 0c0-96-192-368-192-368z"/></svg>',
+          vibrate: withSound ? [200, 100, 200, 100, 200] : [100, 50, 100],
+          tag: "aquatrack-reminder",
+          requireInteraction: false,
+          silent: !state.settings.soundEnabled,
         });
-      } else {
-        // Fallback to regular notification
-        sendLocalNotification(title, body, withSound);
-      }
-    }
-
-    function sendLocalNotification(title, body, withSound = false) {
-      if (Notification.permission !== 'granted') return;
-
-      // Check DND
-      if (isDndActive()) return;
-
-      // Play sound if enabled
-      if (withSound && state.settings.soundEnabled) {
-        playNotificationSound();
       }
 
-      // Show notification
-      new Notification(title, {
-        body: body,
-        icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="%236366F1" d="M256 0C256 0 64 272 64 368a192 192 0 00384 0c0-96-192-368-192-368z"/></svg>',
-        badge: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="%236366F1" d="M256 0C256 0 64 272 64 368a192 192 0 00384 0c0-96-192-368-192-368z"/></svg>',
-        vibrate: withSound ? [200, 100, 200, 100, 200] : [100, 50, 100],
-        tag: 'aquatrack-reminder',
-        requireInteraction: false,
-        silent: !state.settings.soundEnabled
-      });
-    }
+      function playNotificationSound() {
+        // Create audio context for notification sound
+        try {
+          const audioContext = new (
+            window.AudioContext || window.webkitAudioContext
+          )();
+          const oscillator = audioContext.createOscillator();
+          const gainNode = audioContext.createGain();
 
-    function playNotificationSound() {
-      // Create audio context for notification sound
-      try {
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
+          oscillator.connect(gainNode);
+          gainNode.connect(audioContext.destination);
 
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-
-        // Play notification sound (beep pattern)
-        oscillator.frequency.value = 880;
-        oscillator.type = 'sine';
-        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-        
-        oscillator.start(audioContext.currentTime);
-        
-        // Beep pattern: beep-beep-beep
-        setTimeout(() => {
+          // Play notification sound (beep pattern)
           oscillator.frequency.value = 880;
+          oscillator.type = "sine";
           gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-        }, 200);
 
-        setTimeout(() => {
-          oscillator.frequency.value = 880;
-          gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-        }, 400);
+          oscillator.start(audioContext.currentTime);
 
-        setTimeout(() => {
-          oscillator.stop();
-          audioContext.close();
-        }, 600);
-      } catch (error) {
-        console.error('Error playing sound:', error);
+          // Beep pattern: beep-beep-beep
+          setTimeout(() => {
+            oscillator.frequency.value = 880;
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+          }, 200);
+
+          setTimeout(() => {
+            oscillator.frequency.value = 880;
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+          }, 400);
+
+          setTimeout(() => {
+            oscillator.stop();
+            audioContext.close();
+          }, 600);
+        } catch (error) {
+          console.error("Error playing sound:", error);
+        }
       }
-    }
 
-function scheduleReminders() {
-      if (Notification.permission !== 'granted') return;
-      if (!state.settings.remindersEnabled) return;
+      function scheduleReminders() {
+        if (Notification.permission !== "granted") return;
+        if (!state.settings.remindersEnabled) return;
 
-      // Clear existing intervals (fallback)
-      reminderIntervals.forEach(id => clearInterval(id));
-      reminderIntervals = [];
+        // Clear existing intervals
+        reminderIntervals.forEach((id) => clearInterval(id));
+        reminderIntervals = [];
 
-      const times = state.settings.reminderTimes;
-      const now = new Date();
+        const times = state.settings.reminderTimes;
+        const now = new Date();
 
-      ['morning', 'day', 'evening'].forEach(period => {
-         const timeStr = times[period];
-         if(!timeStr) return;
-         const [h, m] = timeStr.split(':').map(Number);
-         let target = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m, 0);
-         
-         if (target <= now) {
-            // schedule for next day
+        ["morning", "day", "evening"].forEach((period) => {
+          const timeStr = times[period];
+          if (!timeStr) return;
+          const [h, m] = timeStr.split(":").map(Number);
+          let target = new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate(),
+            h,
+            m,
+            0,
+          );
+
+          if (target <= now) {
             target.setDate(target.getDate() + 1);
-         }
-         const delay = target.getTime() - now.getTime();
-         
-         let text = period === 'morning' ? 'Пора пить воду! Начните день со стакана воды 💧' : 
-                   (period === 'day' ? 'Не забывайте пить воду в течение дня 💧' : 'Последний приём воды перед сном 💧');
-         let title = period === 'morning' ? '☀️ Доброе утро!' : (period === 'day' ? '🌞 День!' : '🌆 Вечер!');
-         
-         if (serviceWorkerRegistration && serviceWorkerRegistration.active) {
+          }
+          const delay = target.getTime() - now.getTime();
+
+          const text =
+            period === "morning"
+              ? "Пора пить воду! Начните день со стакана воды 💧"
+              : period === "day"
+                ? "Не забывайте пить воду в течение дня 💧"
+                : "Последний приём воды перед сном 💧";
+          const title =
+            period === "morning"
+              ? "☀️ Доброе утро!"
+              : period === "day"
+                ? "🌞 День!"
+                : "🌆 Вечер!";
+
+          if (serviceWorkerRegistration && serviceWorkerRegistration.active) {
             serviceWorkerRegistration.active.postMessage({
-              type: 'SCHEDULE_REMINDER',
+              type: "SCHEDULE_REMINDER",
               delay: delay,
               title: title,
-              body: text
+              body: text,
             });
-         }
-      });
+          }
+        });
 
-      // Keep the interval fallback for open tabs
-      const checkInterval = setInterval(() => {
-        checkAndNotify(times);
-      }, 60000);
-      reminderIntervals.push(checkInterval);
-    }, 60000); // Check every minute
-
+        // Interval fallback for open tabs
+        const checkInterval = setInterval(() => {
+          checkAndNotify(times);
+        }, 60000);
         reminderIntervals.push(checkInterval);
 
-        // Also check immediately for testing
+        // Check immediately
         checkAndNotify(times);
       }
-    }
 
-    function checkAndNotify(times) {
-      const now = new Date();
-      const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+      function checkAndNotify(times) {
+        const now = new Date();
+        const currentTime = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
 
-      // Check if DND is active
-      if (isDndActive()) return;
+        // Check if DND is active
+        if (isDndActive()) return;
 
-      // Check morning reminder
-      if (state.settings.remindersEnabled && times.morning === currentTime) {
-        sendLocalNotification('☀️ Доброе утро!', 'Пора пить воду! Начните день со стакана воды 💧');
+        // Check morning reminder
+        if (state.settings.remindersEnabled && times.morning === currentTime) {
+          sendLocalNotification(
+            "☀️ Доброе утро!",
+            "Пора пить воду! Начните день со стакана воды 💧",
+          );
+        }
+
+        // Check day reminder
+        if (state.settings.remindersEnabled && times.day === currentTime) {
+          sendLocalNotification(
+            "🌞 День!",
+            "Не забывайте пить воду в течение дня 💧",
+          );
+        }
+
+        // Check evening reminder
+        if (state.settings.remindersEnabled && times.evening === currentTime) {
+          sendLocalNotification(
+            "🌆 Вечер!",
+            "Последний приём воды перед сном 💧",
+          );
+        }
       }
 
-      // Check day reminder
-      if (state.settings.remindersEnabled && times.day === currentTime) {
-        sendLocalNotification('🌞 День!', 'Не забывайте пить воду в течение дня 💧');
+      // sendLocalNotification is defined above (single definition with sound support)
+
+      function isDndActive() {
+        if (!state.settings.dndEnabled) return false;
+
+        const now = new Date();
+        const currentTime = now.getHours() * 60 + now.getMinutes();
+
+        const [startH, startM] = state.settings.dndStart.split(":").map(Number);
+        const [endH, endM] = state.settings.dndEnd.split(":").map(Number);
+
+        const startTime = startH * 60 + startM;
+        const endTime = endH * 60 + endM;
+
+        if (startTime > endTime) {
+          // Overnight (e.g., 22:00 - 07:00)
+          return currentTime >= startTime || currentTime < endTime;
+        } else {
+          return currentTime >= startTime && currentTime < endTime;
+        }
       }
 
-      // Check evening reminder
-      if (state.settings.remindersEnabled && times.evening === currentTime) {
-        sendLocalNotification('🌆 Вечер!', 'Последний приём воды перед сном 💧');
+      // ========================================
+      // EXPORT
+      // ========================================
+      function exportData() {
+        const dataStr = JSON.stringify(state, null, 2);
+        const blob = new Blob([dataStr], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `aquatrack-export-${getTodayKey()}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast("Данные экспортированы");
       }
-    }
 
-    function sendLocalNotification(title, body) {
-      if (Notification.permission !== 'granted') return;
-
-      // Check DND
-      if (isDndActive()) return;
-
-      // Show notification
-      new Notification(title, {
-        body: body,
-        icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="%236366F1" d="M256 0C256 0 64 272 64 368a192 192 0 00384 0c0-96-192-368-192-368z"/></svg>',
-        badge: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="%236366F1" d="M256 0C256 0 64 272 64 368a192 192 0 00384 0c0-96-192-368-192-368z"/></svg>',
-        vibrate: [100, 50, 100],
-        tag: 'aquatrack-reminder',
-        requireInteraction: false,
-        silent: !state.settings.soundEnabled
-      });
-    }
-
-
-
-
-    function isDndActive() {
-      if (!state.settings.dndEnabled) return false;
-
-      const now = new Date();
-      const currentTime = now.getHours() * 60 + now.getMinutes();
-
-      const [startH, startM] = state.settings.dndStart.split(':').map(Number);
-      const [endH, endM] = state.settings.dndEnd.split(':').map(Number);
-
-      const startTime = startH * 60 + startM;
-      const endTime = endH * 60 + endM;
-
-      if (startTime > endTime) {
-        // Overnight (e.g., 22:00 - 07:00)
-        return currentTime >= startTime || currentTime < endTime;
-      } else {
-        return currentTime >= startTime && currentTime < endTime;
-      }
-    }
-
-    // ========================================
-    // EXPORT
-    // ========================================
-    function exportData() {
-      const dataStr = JSON.stringify(state, null, 2);
-      const blob = new Blob([dataStr], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `aquatrack-export-${getTodayKey()}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-      showToast('Данные экспортированы');
-    }
-
-    function resetAllData() {
-      state = JSON.parse(JSON.stringify(defaultState));
-      localStorage.removeItem('aquaTrackProData');
-      updateUI();
-      updateProgressRing();
-      showToast('Все данные сброшены');
-    }
-
-    // ========================================
-    // EVENT LISTENERS
-    // ========================================
-    startButton.addEventListener('click', () => {
-      // Add click animation
-      startButton.classList.add('clicked');
-      
-      // Smooth scroll to app
-      document.body.classList.add('scroll-to-app');
-      
-      // Wait for animation then switch screen
-      setTimeout(() => {
-        state.onboardingComplete = true;
-        saveData();
-        switchScreen('tracking');
-        document.body.classList.remove('scroll-to-app');
-        startButton.classList.remove('clicked');
-      }, 600);
-    });
-
-    settingsBtn.addEventListener('click', () => switchScreen('settings'));
-    closeSettings.addEventListener('click', () => switchScreen('tracking'));
-    quickAddFab.addEventListener('click', () => addWater(state.settings.selectedQuickAmount || 500));
-
-    quickAddButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const amount = parseInt(btn.dataset.amount);
-        state.settings.selectedQuickAmount = amount;
-        quickAddButtons.forEach(b => b.classList.remove('selected'));
-        btn.classList.add('selected');
-        saveData();
-        
-        // Get selected drink type
-        const selectedDrink = document.querySelector('.drink-type-btn.selected');
-        const drinkType = selectedDrink?.dataset.type || 'water';
-        const drinkCoef = parseFloat(selectedDrink?.dataset.coef || 1);
-        
-        addWater(amount, drinkType, drinkCoef);
-      });
-    });
-
-    drinkTypeBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        drinkTypeBtns.forEach(b => b.classList.remove('selected'));
-        btn.classList.add('selected');
-      });
-    });
-
-    addCustomBtn.addEventListener('click', () => {
-      const amount = parseInt(customAmountInput.value);
-      if (amount) {
-        const selectedDrink = document.querySelector('.drink-type-btn.selected');
-        const drinkType = selectedDrink?.dataset.type || 'water';
-        const drinkCoef = parseFloat(selectedDrink?.dataset.coef || 1);
-        
-        addWater(amount, drinkType, drinkCoef);
-        customAmountInput.value = '';
-      } else {
-        showToast('Введите количество');
-      }
-    });
-
-    customAmountInput.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') addCustomBtn.click();
-    });
-
-    navItems.forEach(item => {
-      item.addEventListener('click', () => {
-        const screen = item.dataset.screen;
-        if (screen) switchScreen(screen);
-      });
-    });
-
-    // Calculator
-    calculateGoalBtn.addEventListener('click', calculateGoal);
-
-    // DND Toggle
-    dndToggle.addEventListener('click', () => {
-      dndToggle.classList.toggle('active');
-      state.settings.dndEnabled = dndToggle.classList.contains('active');
-      dndTimes.style.opacity = state.settings.dndEnabled ? '1' : '0.5';
-      dndTimes.style.pointerEvents = state.settings.dndEnabled ? 'auto' : 'none';
-      saveData();
-    });
-
-    dndStart.addEventListener('change', () => {
-      state.settings.dndStart = dndStart.value;
-      saveData();
-    });
-
-    dndEnd.addEventListener('change', () => {
-      state.settings.dndEnd = dndEnd.value;
-      saveData();
-    });
-
-    // Goal
-    editGoalBtn.addEventListener('click', () => {
-      const newGoal = prompt('Введите новую цель (мл):', state.goalAmount);
-      if (newGoal && !isNaN(newGoal) && newGoal >= 500 && newGoal <= 5000) {
-        state.goalAmount = parseInt(newGoal);
-        saveData();
+      function resetAllData() {
+        state = JSON.parse(JSON.stringify(defaultState));
+        localStorage.removeItem("aquaTrackProData");
         updateUI();
         updateProgressRing();
-        showToast(`Цель: ${state.goalAmount} мл`);
-      } else if (newGoal) {
-        showToast('Цель от 500 до 5000 мл');
+        showToast("Все данные сброшены");
       }
-    });
 
-    // Presets
-    addPresetBtn.addEventListener('click', () => {
-      showModal('Добавить пресет', `
+      // ========================================
+      // EVENT LISTENERS
+      // ========================================
+      startButton.addEventListener("click", () => {
+        // Add click animation
+        startButton.classList.add("clicked");
+
+        // Smooth scroll to app
+        document.body.classList.add("scroll-to-app");
+
+        // Wait for animation then switch screen
+        setTimeout(() => {
+          state.onboardingComplete = true;
+          saveData();
+          switchScreen("tracking");
+          document.body.classList.remove("scroll-to-app");
+          startButton.classList.remove("clicked");
+        }, 600);
+      });
+
+      settingsBtn.addEventListener("click", () => switchScreen("settings"));
+      closeSettings.addEventListener("click", () => switchScreen("tracking"));
+      quickAddFab.addEventListener("click", () =>
+        addWater(state.settings.selectedQuickAmount || 500),
+      );
+
+      quickAddButtons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const amount = parseInt(btn.dataset.amount);
+          state.settings.selectedQuickAmount = amount;
+          quickAddButtons.forEach((b) => b.classList.remove("selected"));
+          btn.classList.add("selected");
+          saveData();
+
+          // Get selected drink type
+          const selectedDrink = document.querySelector(
+            ".drink-type-btn.selected",
+          );
+          const drinkType = selectedDrink?.dataset.type || "water";
+          const drinkCoef = parseFloat(selectedDrink?.dataset.coef || 1);
+
+          addWater(amount, drinkType, drinkCoef);
+        });
+      });
+
+      drinkTypeBtns.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          drinkTypeBtns.forEach((b) => b.classList.remove("selected"));
+          btn.classList.add("selected");
+        });
+      });
+
+      addCustomBtn.addEventListener("click", () => {
+        const amount = parseInt(customAmountInput.value);
+        if (amount) {
+          const selectedDrink = document.querySelector(
+            ".drink-type-btn.selected",
+          );
+          const drinkType = selectedDrink?.dataset.type || "water";
+          const drinkCoef = parseFloat(selectedDrink?.dataset.coef || 1);
+
+          addWater(amount, drinkType, drinkCoef);
+          customAmountInput.value = "";
+        } else {
+          showToast("Введите количество");
+        }
+      });
+
+      customAmountInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") addCustomBtn.click();
+      });
+
+      navItems.forEach((item) => {
+        item.addEventListener("click", () => {
+          const screen = item.dataset.screen;
+          if (screen) switchScreen(screen);
+        });
+      });
+
+      // Calculator
+      calculateGoalBtn.addEventListener("click", calculateGoal);
+
+      // DND Toggle
+      dndToggle.addEventListener("click", () => {
+        dndToggle.classList.toggle("active");
+        state.settings.dndEnabled = dndToggle.classList.contains("active");
+        dndTimes.style.opacity = state.settings.dndEnabled ? "1" : "0.5";
+        dndTimes.style.pointerEvents = state.settings.dndEnabled
+          ? "auto"
+          : "none";
+        saveData();
+      });
+
+      dndStart.addEventListener("change", () => {
+        state.settings.dndStart = dndStart.value;
+        saveData();
+      });
+
+      dndEnd.addEventListener("change", () => {
+        state.settings.dndEnd = dndEnd.value;
+        saveData();
+      });
+
+      // Goal
+      editGoalBtn.addEventListener("click", () => {
+        const newGoal = prompt("Введите новую цель (мл):", state.goalAmount);
+        if (newGoal && !isNaN(newGoal) && newGoal >= 500 && newGoal <= 5000) {
+          state.goalAmount = parseInt(newGoal);
+          saveData();
+          updateUI();
+          updateProgressRing();
+          showToast(`Цель: ${state.goalAmount} мл`);
+        } else if (newGoal) {
+          showToast("Цель от 500 до 5000 мл");
+        }
+      });
+
+      // Presets
+      addPresetBtn.addEventListener("click", () => {
+        showModal(
+          "Добавить пресет",
+          `
         <div class="input-group">
           <label class="input-label">Название</label>
           <input type="text" class="input" id="presetName" placeholder="Чашка">
@@ -2199,118 +3252,139 @@ function scheduleReminders() {
           <label class="input-label">Иконка</label>
           <input type="text" class="input" id="presetIcon" placeholder="☕" maxlength="2">
         </div>
-      `, [
-        { text: 'Отмена', style: 'btn-secondary', onClick: () => {} },
-        { text: 'Добавить', style: 'btn-primary', onClick: () => {
-          const name = document.getElementById('presetName').value;
-          const amount = parseInt(document.getElementById('presetAmount').value);
-          const icon = document.getElementById('presetIcon').value || '💧';
-          
-          if (name && amount) {
-            state.presets.push({ id: Date.now(), name, amount, icon });
-            saveData();
-            renderPresets();
-            showToast('Пресет добавлен');
+      `,
+          [
+            { text: "Отмена", style: "btn-secondary", onClick: () => {} },
+            {
+              text: "Добавить",
+              style: "btn-primary",
+              onClick: () => {
+                const name = document.getElementById("presetName").value;
+                const amount = parseInt(
+                  document.getElementById("presetAmount").value,
+                );
+                const icon =
+                  document.getElementById("presetIcon").value || "💧";
+
+                if (name && amount) {
+                  state.presets.push({ id: Date.now(), name, amount, icon });
+                  saveData();
+                  renderPresets();
+                  showToast("Пресет добавлен");
+                } else {
+                  showToast("Заполните все поля");
+                }
+              },
+            },
+          ],
+        );
+      });
+
+      // Data
+      resetDataBtn.addEventListener("click", () => {
+        showModal(
+          "Сброс данных",
+          "Вы уверены? Все записи будут удалены без возможности восстановления.",
+          [
+            { text: "Отмена", style: "btn-secondary", onClick: () => {} },
+            { text: "Сбросить", style: "btn-danger", onClick: resetAllData },
+          ],
+        );
+      });
+
+      exportDataBtn.addEventListener("click", exportData);
+
+      // Test notification button
+      document
+        .getElementById("testNotification")
+        ?.addEventListener("click", () => {
+          if (Notification.permission === "granted") {
+            sendPushNotification(
+              "🔔 Тест уведомлений",
+              "Уведомления работают корректно! Звук: " +
+                (state.settings.soundEnabled ? "включён 🔊" : "выключен 🔇"),
+              true,
+            );
+            showToast("Уведомление отправлено!");
+          } else if (Notification.permission === "default") {
+            requestNotificationPermission();
           } else {
-            showToast('Заполните все поля');
+            showToast("Уведомления запрещены в настройках браузера");
           }
-        }}
-      ]);
-    });
+        });
 
-    // Data
-    resetDataBtn.addEventListener('click', () => {
-      showModal('Сброс данных', 'Вы уверены? Все записи будут удалены без возможности восстановления.', [
-        { text: 'Отмена', style: 'btn-secondary', onClick: () => {} },
-        { text: 'Сбросить', style: 'btn-danger', onClick: resetAllData }
-      ]);
-    });
-
-    exportDataBtn.addEventListener('click', exportData);
-
-    // Test notification button
-    document.getElementById('testNotification')?.addEventListener('click', () => {
-      if (Notification.permission === 'granted') {
-        sendPushNotification('🔔 Тест уведомлений', 'Уведомления работают корректно! Звук: ' + (state.settings.soundEnabled ? 'включён 🔊' : 'выключен 🔇'), true);
-        showToast('Уведомление отправлено!');
-      } else if (Notification.permission === 'default') {
-        requestNotificationPermission();
-      } else {
-        showToast('Уведомления запрещены в настройках браузера');
-      }
-    });
-
-    // Notifications
-    enableNotificationBtn.addEventListener('click', requestNotificationPermission);
-    dismissNotificationBtn.addEventListener('click', () => {
-      state.notificationPermissionRequested = true;
-      saveData();
-      notificationBanner.classList.remove('show');
-    });
-
-    // Modal close
-    modalClose.addEventListener('click', () => modalOverlay.classList.remove('active'));
-    modalOverlay.addEventListener('click', (e) => {
-      if (e.target === modalOverlay) modalOverlay.classList.remove('active');
-    });
-
-    // Reminder toggles
-    document.querySelectorAll('.reminder-schedule .toggle').forEach(toggle => {
-      toggle.addEventListener('click', () => {
-        toggle.classList.toggle('active');
-        state.settings.remindersEnabled = toggle.classList.contains('active');
+      // Notifications
+      enableNotificationBtn.addEventListener(
+        "click",
+        requestNotificationPermission,
+      );
+      dismissNotificationBtn.addEventListener("click", () => {
+        state.notificationPermissionRequested = true;
         saveData();
+        notificationBanner.classList.remove("show");
       });
-    });
 
-    // ========================================
-    // SERVICE WORKER
-    // ========================================
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-          .then(reg => console.log('SW registered:', reg.scope))
-          .catch(err => console.log('SW registration failed:', err));
+      // Modal close
+      modalClose.addEventListener("click", () =>
+        modalOverlay.classList.remove("active"),
+      );
+      modalOverlay.addEventListener("click", (e) => {
+        if (e.target === modalOverlay) modalOverlay.classList.remove("active");
       });
-    }
 
-    // ========================================
-    // INITIALIZATION
-    // ========================================
-    function init() {
-      headerDateEl.textContent = getFormattedDate();
-      
-      const hasData = loadData();
-      
-      // Restore DND state
-      dndToggle.classList.toggle('active', state.settings.dndEnabled);
-      dndTimes.style.opacity = state.settings.dndEnabled ? '1' : '0.5';
-      dndTimes.style.pointerEvents = state.settings.dndEnabled ? 'auto' : 'none';
-      dndStart.value = state.settings.dndStart;
-      dndEnd.value = state.settings.dndEnd;
+      // Reminder toggles
+      document
+        .querySelectorAll(".reminder-schedule .toggle")
+        .forEach((toggle) => {
+          toggle.addEventListener("click", () => {
+            toggle.classList.toggle("active");
+            state.settings.remindersEnabled =
+              toggle.classList.contains("active");
+            saveData();
+          });
+        });
 
-      // Restore calculator values
-      if (state.profile.weight) calcWeight.value = state.profile.weight;
-      if (state.profile.height) calcHeight.value = state.profile.height;
-      if (state.profile.age) calcAge.value = state.profile.age;
-      calcGender.value = state.profile.gender;
-      calcActivity.value = state.profile.activity;
+      // Service Worker is registered via registerServiceWorker() in init()
 
-      // Register Service Worker
-      registerServiceWorker();
+      // ========================================
+      // INITIALIZATION
+      // ========================================
+      function init() {
+        headerDateEl.textContent = getFormattedDate();
 
-      if (state.onboardingComplete) {
-        switchScreen('tracking');
-      } else {
-        switchScreen('onboarding');
+        const hasData = loadData();
+
+        // Restore DND state
+        dndToggle.classList.toggle("active", state.settings.dndEnabled);
+        dndTimes.style.opacity = state.settings.dndEnabled ? "1" : "0.5";
+        dndTimes.style.pointerEvents = state.settings.dndEnabled
+          ? "auto"
+          : "none";
+        dndStart.value = state.settings.dndStart;
+        dndEnd.value = state.settings.dndEnd;
+
+        // Restore calculator values
+        if (state.profile.weight) calcWeight.value = state.profile.weight;
+        if (state.profile.height) calcHeight.value = state.profile.height;
+        if (state.profile.age) calcAge.value = state.profile.age;
+        calcGender.value = state.profile.gender;
+        calcActivity.value = state.profile.activity;
+
+        // Register Service Worker
+        registerServiceWorker();
+
+        if (state.onboardingComplete) {
+          switchScreen("tracking");
+        } else {
+          switchScreen("onboarding");
+        }
+
+        updateUI();
+        updateProgressRing();
+        checkAchievements();
       }
 
-      updateUI();
-      updateProgressRing();
-      checkAchievements();
-    }
-
-    init();
-  </script>
-</body>
+      init();
+    </script>
+  </body>
 </html>

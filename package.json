@@ -1,6 +1,6 @@
 {
   "name": "aquatrack-pro",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "PWA Water Tracker - Умный трекер водного баланса",
   "private": true,
   "scripts": {
