@@ -1,7 +1,7 @@
-const CACHE_NAME = 'aquatrack-pro-v2';
+const CACHE_NAME = 'aquatrack-pro-v3';
 const ASSETS = [
   './',
-  './apps-variation-3.html',
+  './index.html',
   './manifest.json'
 ];
 
@@ -55,7 +55,7 @@ self.addEventListener('fetch', (event) => {
       })
       .catch(() => {
         if (event.request.mode === 'navigate') {
-          return caches.match('./apps-variation-3.html');
+          return caches.match('./index.html');
         }
       })
   );
@@ -64,35 +64,45 @@ self.addEventListener('fetch', (event) => {
 // Push уведомления
 self.addEventListener('push', (event) => {
   const data = event.data ? event.data.json() : {};
-  const title = data.title || 'AquaTrack';
+  const title = data.title || 'AquaTrack — Пора пить воду!';
+  
   const options = {
-    body: data.body || 'Пора пить воду! 💧',
-    icon: 'icon-192.png',
-    badge: 'icon-72.png',
-    vibrate: [100, 50, 100],
+    body: data.body || '💧 Не забывайте поддерживать водный баланс!',
+    icon: './icon-192.png',
+    badge: './icon-72.png',
+    vibrate: [200, 100, 200, 100, 200],
+    sound: 'notification-sound.mp3',
+    tag: 'water-reminder-' + Date.now(),
+    renotify: true,
+    requireInteraction: false,
+    silent: false,
     data: {
-      url: './apps-variation-3.html',
-      timestamp: Date.now()
+      url: './index.html',
+      timestamp: Date.now(),
+      type: 'water-reminder'
     },
     actions: [
       {
         action: 'add_250',
         title: '+250 мл',
-        icon: 'icon-72.png'
+        icon: './icon-72.png'
       },
       {
         action: 'add_500',
         title: '+500 мл',
-        icon: 'icon-72.png'
+        icon: './icon-72.png'
+      },
+      {
+        action: 'snooze',
+        title: 'Напомнить позже',
+        icon: './icon-72.png'
       },
       {
         action: 'dismiss',
-        title: 'Позже',
-        icon: 'icon-72.png'
+        title: 'Закрыть',
+        icon: './icon-72.png'
       }
-    ],
-    tag: 'water-reminder',
-    renotify: true
+    ]
   };
 
   event.waitUntil(
@@ -104,30 +114,56 @@ self.addEventListener('push', (event) => {
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
 
-  if (event.action === 'add_250' || event.action === 'add_500') {
-    const amount = event.action === 'add_250' ? 250 : 500;
-    
-    // Сообщаем основному приложению
+  if (event.action === 'add_250') {
     event.waitUntil(
       clients.matchAll({ type: 'window', includeUncontrolled: true })
         .then((windowClients) => {
-          // Отправляем сообщение всем клиентам
           windowClients.forEach(client => {
             client.postMessage({
               type: 'ADD_WATER',
-              amount: amount
+              amount: 250
             });
           });
-          
-          // Если нет открытых клиентов, открываем приложение
           if (windowClients.length === 0) {
-            return clients.openWindow('./apps-variation-3.html?action=add_' + amount);
+            return clients.openWindow('./index.html?action=add_250');
           }
         })
     );
+  } else if (event.action === 'add_500') {
+    event.waitUntil(
+      clients.matchAll({ type: 'window', includeUncontrolled: true })
+        .then((windowClients) => {
+          windowClients.forEach(client => {
+            client.postMessage({
+              type: 'ADD_WATER',
+              amount: 500
+            });
+          });
+          if (windowClients.length === 0) {
+            return clients.openWindow('./index.html?action=add_500');
+          }
+        })
+    );
+  } else if (event.action === 'snooze') {
+    // Отложить на 30 минут
+    event.waitUntil(
+      self.registration.showNotification('⏰ Напоминание отложено', {
+        body: 'Напомню через 30 минут',
+        icon: './icon-192.png',
+        tag: 'snooze-reminder',
+        data: { url: './index.html' }
+      })
+    );
   } else {
     event.waitUntil(
-      clients.openWindow('./apps-variation-3.html')
+      clients.matchAll({ type: 'window', includeUncontrolled: true })
+        .then((windowClients) => {
+          if (windowClients.length > 0) {
+            windowClients[0].focus();
+          } else {
+            return clients.openWindow('./index.html');
+          }
+        })
     );
   }
 });
@@ -137,15 +173,15 @@ self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SCHEDULE_REMINDER') {
     const { delay, title, body } = event.data;
     
-    // Планируем уведомление
     setTimeout(() => {
       self.registration.showNotification(title, {
         body: body,
-        icon: 'icon-192.png',
-        badge: 'icon-72.png',
-        vibrate: [100, 50, 100],
+        icon: './icon-192.png',
+        badge: './icon-72.png',
+        vibrate: [200, 100, 200],
+        sound: 'notification-sound.mp3',
         tag: 'scheduled-reminder',
-        data: { url: './apps-variation-3.html' }
+        data: { url: './index.html' }
       });
     }, delay);
   }
@@ -153,23 +189,37 @@ self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'GET_VERSION') {
     event.ports[0].postMessage({ version: CACHE_NAME });
   }
+
+  if (event.data && event.data.type === 'SEND_PUSH') {
+    const { title, body, icon, sound } = event.data;
+    
+    self.registration.showNotification(title, {
+      body: body,
+      icon: icon || './icon-192.png',
+      badge: './icon-72.png',
+      vibrate: [200, 100, 200, 100, 200],
+      sound: sound || 'notification-sound.mp3',
+      tag: 'custom-notification-' + Date.now(),
+      requireInteraction: false,
+      data: { url: './index.html' }
+    });
+  }
+});
+
+// Periodic Background Sync для регулярных напоминаний
+self.addEventListener('periodicsync', (event) => {
+  if (event.tag === 'water-reminder-check') {
+    event.waitUntil(
+      // Проверка времени и отправка уведомлений
+      Promise.resolve()
+    );
+  }
 });
 
 // Фоновая синхронизация
 self.addEventListener('sync', (event) => {
   if (event.tag === 'sync-water-data') {
     event.waitUntil(
-      // Синхронизация данных при появлении соединения
-      Promise.resolve()
-    );
-  }
-});
-
-// Periodic Background Sync (для регулярных напоминаний)
-self.addEventListener('periodicsync', (event) => {
-  if (event.tag === 'water-reminder-check') {
-    event.waitUntil(
-      // Проверка, пора ли отправлять напоминание
       Promise.resolve()
     );
   }

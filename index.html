@@ -159,12 +159,42 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       box-shadow: 0 10px 40px rgba(99, 102, 241, 0.4);
+      animation: ctaPulse 2s ease-in-out infinite;
     }
 
-    .vibrant-cta:active { transform: scale(0.92) rotate(-10deg); }
+    @keyframes ctaPulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 10px 40px rgba(99, 102, 241, 0.4); }
+      50% { transform: scale(1.05); box-shadow: 0 15px 50px rgba(99, 102, 241, 0.6); }
+    }
+
+    .vibrant-cta:active { 
+      transform: scale(0.92) rotate(-10deg); 
+      animation: none;
+    }
+
+    .vibrant-cta.clicked {
+      animation: ctaClick 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    @keyframes ctaClick {
+      0% { transform: scale(1) rotate(0deg); opacity: 1; }
+      50% { transform: scale(1.1) rotate(-15deg); opacity: 0.8; }
+      100% { transform: scale(0) rotate(-30deg); opacity: 0; }
+    }
+
     .vibrant-cta svg { width: 28px; height: 28px; stroke: #FFFFFF; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* Scroll animation class */
+    .scroll-to-app {
+      animation: scrollToApp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    @keyframes scrollToApp {
+      0% { transform: translateY(0); opacity: 1; }
+      100% { transform: translateY(-100vh); opacity: 0; }
+    }
 
     /* ===== COMMON COMPONENTS ===== */
     .header {
@@ -2270,6 +2300,24 @@
     // NOTIFICATIONS
     // ========================================
     let reminderIntervals = [];
+    let serviceWorkerRegistration = null;
+
+    async function registerServiceWorker() {
+      if ('serviceWorker' in navigator) {
+        try {
+          const registration = await navigator.serviceWorker.register('./sw.js');
+          serviceWorkerRegistration = registration;
+          console.log('Service Worker registered:', registration.scope);
+          
+          // Request notification permission after SW registration
+          if (Notification.permission === 'default') {
+            // Will show banner
+          }
+        } catch (error) {
+          console.error('SW registration failed:', error);
+        }
+      }
+    }
 
     async function requestNotificationPermission() {
       if (!('Notification' in window)) {
@@ -2282,13 +2330,111 @@
 
       if (permission === 'granted') {
         showToast('Уведомления включены!');
+        
+        // Register for push notifications
+        await registerPushNotifications();
+        
         scheduleReminders();
         // Send test notification
-        sendLocalNotification('🎉 AquaTrack', 'Уведомления работают! Не забывайте пить воду 💧');
+        sendPushNotification('🎉 AquaTrack', 'Уведомления работают! Не забывайте пить воду 💧', true);
       }
 
       saveData();
       notificationBanner.classList.remove('show');
+    }
+
+    async function registerPushNotifications() {
+      if (!serviceWorkerRegistration) {
+        await registerServiceWorker();
+      }
+
+      try {
+        // For real push, you'd need a server and VAPID keys
+        // This is a demo using local notifications via SW
+        console.log('Push notifications ready');
+      } catch (error) {
+        console.error('Push registration failed:', error);
+      }
+    }
+
+    function sendPushNotification(title, body, withSound = false) {
+      if (Notification.permission !== 'granted') return;
+
+      // Check DND
+      if (isDndActive()) return;
+
+      // Send via Service Worker for full functionality
+      if (serviceWorkerRegistration && serviceWorkerRegistration.active) {
+        serviceWorkerRegistration.active.postMessage({
+          type: 'SEND_PUSH',
+          title: title,
+          body: body,
+          sound: withSound
+        });
+      } else {
+        // Fallback to regular notification
+        sendLocalNotification(title, body, withSound);
+      }
+    }
+
+    function sendLocalNotification(title, body, withSound = false) {
+      if (Notification.permission !== 'granted') return;
+
+      // Check DND
+      if (isDndActive()) return;
+
+      // Play sound if enabled
+      if (withSound && state.settings.soundEnabled) {
+        playNotificationSound();
+      }
+
+      // Show notification
+      new Notification(title, {
+        body: body,
+        icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="%236366F1" d="M256 0C256 0 64 272 64 368a192 192 0 00384 0c0-96-192-368-192-368z"/></svg>',
+        badge: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="%236366F1" d="M256 0C256 0 64 272 64 368a192 192 0 00384 0c0-96-192-368-192-368z"/></svg>',
+        vibrate: withSound ? [200, 100, 200, 100, 200] : [100, 50, 100],
+        tag: 'aquatrack-reminder',
+        requireInteraction: false,
+        silent: !state.settings.soundEnabled
+      });
+    }
+
+    function playNotificationSound() {
+      // Create audio context for notification sound
+      try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        // Play notification sound (beep pattern)
+        oscillator.frequency.value = 880;
+        oscillator.type = 'sine';
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        
+        oscillator.start(audioContext.currentTime);
+        
+        // Beep pattern: beep-beep-beep
+        setTimeout(() => {
+          oscillator.frequency.value = 880;
+          gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        }, 200);
+
+        setTimeout(() => {
+          oscillator.frequency.value = 880;
+          gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        }, 400);
+
+        setTimeout(() => {
+          oscillator.stop();
+          audioContext.close();
+        }, 600);
+      } catch (error) {
+        console.error('Error playing sound:', error);
+      }
     }
 
     function scheduleReminders() {
@@ -2423,9 +2569,20 @@
     // EVENT LISTENERS
     // ========================================
     startButton.addEventListener('click', () => {
-      state.onboardingComplete = true;
-      saveData();
-      switchScreen('tracking');
+      // Add click animation
+      startButton.classList.add('clicked');
+      
+      // Smooth scroll to app
+      document.body.classList.add('scroll-to-app');
+      
+      // Wait for animation then switch screen
+      setTimeout(() => {
+        state.onboardingComplete = true;
+        saveData();
+        switchScreen('tracking');
+        document.body.classList.remove('scroll-to-app');
+        startButton.classList.remove('clicked');
+      }, 600);
     });
 
     settingsBtn.addEventListener('click', () => switchScreen('settings'));
@@ -2564,7 +2721,7 @@
     // Test notification button
     document.getElementById('testNotification')?.addEventListener('click', () => {
       if (Notification.permission === 'granted') {
-        sendLocalNotification('🔔 Тест уведомлений', 'Уведомления работают корректно! 💧');
+        sendPushNotification('🔔 Тест уведомлений', 'Уведомления работают корректно! Звук: ' + (state.settings.soundEnabled ? 'включён 🔊' : 'выключен 🔇'), true);
         showToast('Уведомление отправлено!');
       } else if (Notification.permission === 'default') {
         requestNotificationPermission();
@@ -2629,12 +2786,15 @@
       calcGender.value = state.profile.gender;
       calcActivity.value = state.profile.activity;
 
+      // Register Service Worker
+      registerServiceWorker();
+
       if (state.onboardingComplete) {
         switchScreen('tracking');
       } else {
         switchScreen('onboarding');
       }
-      
+
       updateUI();
       updateProgressRing();
       checkAchievements();
